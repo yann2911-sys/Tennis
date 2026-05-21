@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tennis 2025</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0a0a0a; color: #f0ede6; font-family: Georgia, serif; padding: 20px; font-size: 15px; }
+h1 { font-size: 22px; font-weight: normal; margin-bottom: 4px; }
+.sub { color: #6a8a6a; font-size: 13px; font-style: italic; margin-bottom: 20px; }
+.stats { display: flex; gap: 8px; margin-bottom: 24px; }
+.stat { flex: 1; background: #0f1a0f; border: 1px solid #2a3a2a; padding: 12px 8px; text-align: center; border-radius: 4px; }
+.stat-l { font-size: 9px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.stat-v { font-size: 14px; font-weight: bold; color: #4a904a; }
+label { display: block; font-size: 11px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; margin-top: 12px; }
+input, textarea { display: block; width: 100%; background: #111; border: 1px solid #333; color: #f0ede6; padding: 12px; font-size: 16px; border-radius: 4px; font-family: Georgia, serif; -webkit-appearance: none; appearance: none; }
+input[type=date] { color-scheme: dark; }
+textarea { height: 80px; font-size: 13px; resize: none; }
+.btn { display: block; width: 100%; margin-top: 16px; padding: 16px; background: #1a5a1a; color: #90cc90; border: none; font-size: 15px; border-radius: 4px; font-family: Georgia, serif; cursor: pointer; }
+.btn2 { background: #0f1a0f; color: #6a8a6a; border: 1px solid #2a4a2a; font-size: 13px; padding: 10px; }
+.preview { color: #4a904a; font-size: 13px; font-style: italic; margin-top: 8px; min-height: 18px; }
+.hist-title { font-size: 11px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; }
+.item { background: #0f1a0f; border-left: 2px solid #2a4a2a; padding: 12px; margin-bottom: 4px; border-radius: 0 4px 4px 0; display: flex; align-items: center; gap: 8px; }
+.item-date { color: #4a6a4a; font-size: 11px; min-width: 44px; }
+.item-info { flex: 1; font-size: 13px; color: #8ab08a; }
+.item-note { font-size: 11px; color: #4a6a4a; font-style: italic; display: block; margin-top: 2px; }
+.item-amt { color: #4a904a; font-weight: bold; font-size: 13px; white-space: nowrap; }
+.del { background: none; border: none; color: #4a4a4a; font-size: 20px; cursor: pointer; padding: 0 4px; }
+.empty { text-align: center; color: #2a4a2a; font-style: italic; padding: 40px 0; border: 1px dashed #1a3a1a; border-radius: 4px; }
+.save-box { margin-top: 32px; padding-top: 20px; border-top: 1px solid #1a2a1a; }
+.save-title { font-size: 11px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.save-info { font-size: 12px; color: #3a5a3a; font-style: italic; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Revenus · Tennis 2025</h1>
+<p class="sub">Chaque heure compte.</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-l">Total</div><div class="stat-v" id="s-total">0,00 €</div></div>
+  <div class="stat"><div class="stat-l">Heures</div><div class="stat-v" id="s-hours">0,0 h</div></div>
+  <div class="stat"><div class="stat-l">Moy/h</div><div class="stat-v" id="s-avg">—</div></div>
+</div>
+
+<label>Heures</label>
+<input type="number" id="f-h" placeholder="ex: 1.5" inputmode="decimal" step="0.5" min="0">
+
+<label>Taux (€/h)</label>
+<input type="number" id="f-r" placeholder="ex: 25" inputmode="decimal" min="0">
+
+<label>Date</label>
+<input type="date" id="f-d">
+
+<label>Note (optionnel)</label>
+<input type="text" id="f-n" placeholder="Privé, collectif...">
+
+<div class="preview" id="preview"></div>
+<button class="btn" id="btn" onclick="ajouter()">＋ Ajouter la session</button>
+
+<div class="hist-title" id="hist-title">Historique · 0 session</div>
+<div id="list"><div class="empty">Aucune session encore.</div></div>
+
+<div class="save-box">
+  <div class="save-title">Sauvegarde</div>
+  <div class="save-info">⚠️ Les données ne persistent pas entre ouvertures du fichier. Exporte après chaque session et importe au prochain démarrage.</div>
+  <button class="btn btn2" onclick="exporter()">📋 Copier mes données</button>
+  <button class="btn btn2" style="margin-top:8px" onclick="importer()">📥 Importer mes données</button>
+</div>
+
+<script>
+var S = [];
+
+function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+function today() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+}
+
+function eur(n) {
+  var s = n.toFixed(2).replace('.', ',');
+  return s + ' \u20ac';
+}
+
+function fdate(iso) {
+  var d = new Date(iso);
+  var months = ['jan','fev','mar','avr','mai','jun','jul','aou','sep','oct','nov','dec'];
+  return pad(d.getDate()) + ' ' + months[d.getMonth()];
+}
+
+function ajouter() {
+  var hEl = document.getElementById('f-h');
+  var rEl = document.getElementById('f-r');
+  var dEl = document.getElementById('f-d');
+  var nEl = document.getElementById('f-n');
+
+  var hv = hEl.value.replace(',', '.');
+  var rv = rEl.value.replace(',', '.');
+  var h = parseFloat(hv);
+  var r = parseFloat(rv);
+
+  if (isNaN(h) || h <= 0 || isNaN(r) || r <= 0) {
+    alert('Remplis les heures et le taux svp.');
+    return;
+  }
+
+  var dv = dEl.value;
+  var iso;
+  if (dv && dv.length === 10) {
+    var p = dv.split('-');
+    iso = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]), 12, 0, 0).toISOString();
+  } else {
+    iso = new Date().toISOString();
+  }
+
+  var obj = { id: new Date().getTime(), date: iso, h: h, r: r, e: Math.round(h*r*100)/100, n: nEl.value.trim() };
+  S.push(obj);
+  S.sort(function(a,b){ return new Date(b.date).getTime() - new Date(a.date).getTime(); });
+
+  hEl.value = '';
+  rEl.value = '';
+  nEl.value = '';
+  dEl.value = today();
+  document.getElementById('preview').textContent = '';
+
+  var btn = document.getElementById('btn');
+  btn.textContent = '\u2713 Ajout\u00e9 !';
+  setTimeout(function(){ btn.textContent = '\uff0b Ajouter la session'; }, 2000);
+
+  refresh();
+}
+
+function suppr(id) {
+  if (!confirm('Supprimer ?')) return;
+  var newS = [];
+  for (var i = 0; i < S.length; i++) {
+    if (S[i].id !== id) newS.push(S[i]);
+  }
+  S = newS;
+  refresh();
+}
+
+function upd() {
+  var h = parseFloat(document.getElementById('f-h').value.replace(',','.'));
+  var r = parseFloat(document.getElementById('f-r').value.replace(',','.'));
+  var p = document.getElementById('preview');
+  if (h > 0 && r > 0) {
+    p.textContent = '\u2192 ' + h + 'h \u00d7 ' + r + ' \u20ac/h = ' + eur(h*r);
+  } else {
+    p.textContent = '';
+  }
+}
+
+function exporter() {
+  var data = JSON.stringify(S);
+  var el = document.getElementById('export-area');
+  el.value = data;
+  el.style.display = 'block';
+  el.select();
+  try { document.execCommand('copy'); alert('Donn\u00e9es copi\u00e9es ! Colle-les dans tes Notes.'); }
+  catch(e) { alert('Copie manuelle : s\u00e9lectionne tout le texte ci-dessous.'); }
+}
+
+function importer() {
+  var txt = prompt('Colle tes donn\u00e9es ici :');
+  if (!txt) return;
+  try {
+    var parsed = JSON.parse(txt);
+    if (Array.isArray(parsed)) {
+      S = parsed;
+      refresh();
+      alert('Import\u00e9 : ' + S.length + ' session(s).');
+    } else {
+      alert('Format invalide.');
+    }
+  } catch(e) {
+    alert('Erreur : donn\u00e9es invalides.');
+  }
+}
+
+function refresh() {
+  var tot = 0, totH = 0;
+  for (var i = 0; i < S.length; i++) { tot += S[i].e; totH += S[i].h; }
+  var avg = totH > 0 ? tot/totH : 0;
+
+  document.getElementById('s-total').textContent = eur(tot);
+  document.getElementById('s-hours').textContent = totH.toFixed(1) + ' h';
+  document.getElementById('s-avg').textContent = avg > 0 ? eur(avg) : '\u2014';
+  document.getElementById('hist-title').textContent = 'Historique \u00b7 ' + S.length + ' session' + (S.length > 1 ? 's' : '');
+
+  var el = document.getElementById('list');
+  if (S.length === 0) {
+    el.innerHTML = '<div class="empty">Aucune session encore.</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < S.length; i++) {
+    var s = S[i];
+    html += '<div class="item">'
+      + '<div class="item-date">' + fdate(s.date) + '</div>'
+      + '<div class="item-info">'
+      + s.h + 'h \u00d7 ' + s.r + '\u20ac'
+      + (s.n ? '<span class="item-note">' + s.n + '</span>' : '')
+      + '</div>'
+      + '<div class="item-amt">' + eur(s.e) + '</div>'
+      + '<button class="del" onclick="suppr(' + s.id + ')">×</button>'
+      + '</div>';
+  }
+  el.innerHTML = html;
+}
+
+document.getElementById('f-h').addEventListener('input', upd);
+document.getElementById('f-r').addEventListener('input', upd);
+document.getElementById('f-d').value = today();
+refresh();
+</script>
+
+<textarea id="export-area" style="display:none;margin-top:10px;font-size:11px;color:#4a8a4a;background:#0a0a0a;border:1px solid #2a4a2a;border-radius:4px;padding:8px;width:100%;"></textarea>
+
+</body>
+</html>
