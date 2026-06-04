@@ -9,22 +9,33 @@
 body { background: #0a0a0a; color: #f0ede6; font-family: Georgia, serif; padding: 20px; font-size: 15px; }
 h1 { font-size: 22px; font-weight: normal; margin-bottom: 4px; }
 .sub { color: #6a8a6a; font-size: 13px; font-style: italic; margin-bottom: 20px; }
+
 .stats { display: flex; gap: 8px; margin-bottom: 24px; }
 .stat { flex: 1; background: #0f1a0f; border: 1px solid #2a3a2a; padding: 12px 8px; text-align: center; border-radius: 4px; }
 .stat-l { font-size: 9px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
 .stat-v { font-size: 14px; font-weight: bold; color: #4a904a; }
+
 label { display: block; font-size: 11px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; margin-top: 12px; }
 input { display: block; width: 100%; background: #111; border: 1px solid #333; color: #f0ede6; padding: 12px; font-size: 16px; border-radius: 4px; font-family: Georgia, serif; -webkit-appearance: none; appearance: none; }
 input[type=date] { color-scheme: dark; }
 .btn { display: block; width: 100%; margin-top: 16px; padding: 16px; background: #1a5a1a; color: #90cc90; border: none; font-size: 15px; border-radius: 4px; font-family: Georgia, serif; cursor: pointer; }
 .preview { color: #4a904a; font-size: 13px; font-style: italic; margin-top: 8px; min-height: 18px; }
+
 .hist-title { font-size: 11px; color: #4a6a4a; text-transform: uppercase; letter-spacing: 2px; margin: 28px 0 12px; }
-.item { background: #0f1a0f; border-left: 2px solid #2a4a2a; padding: 12px; margin-bottom: 4px; border-radius: 0 4px 4px 0; display: flex; align-items: center; gap: 8px; }
-.item-date { color: #4a6a4a; font-size: 11px; min-width: 44px; }
+
+.month-block { margin-bottom: 20px; }
+.month-header { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 12px; background: #0f2a0f; border-left: 3px solid #4a904a; border-radius: 0 4px 4px 0; margin-bottom: 4px; }
+.month-name { font-size: 13px; color: #8ab08a; text-transform: uppercase; letter-spacing: 2px; }
+.month-stats { font-size: 11px; color: #4a6a4a; text-align: right; }
+.month-total { color: #4a904a; font-weight: bold; font-size: 14px; }
+
+.item { background: #0f1a0f; border-left: 2px solid #1a3a1a; padding: 11px 12px; margin-bottom: 2px; border-radius: 0 4px 4px 0; display: flex; align-items: center; gap: 8px; }
+.item-date { color: #4a6a4a; font-size: 11px; min-width: 32px; }
 .item-info { flex: 1; font-size: 13px; color: #8ab08a; }
 .item-note { font-size: 11px; color: #4a6a4a; font-style: italic; display: block; margin-top: 2px; }
 .item-amt { color: #4a904a; font-weight: bold; font-size: 13px; white-space: nowrap; }
-.del { background: none; border: none; color: #4a4a4a; font-size: 20px; cursor: pointer; padding: 0 4px; }
+.del { background: none; border: none; color: #3a4a3a; font-size: 20px; cursor: pointer; padding: 0 4px; line-height: 1; }
+
 .empty { text-align: center; color: #2a4a2a; font-style: italic; padding: 40px 0; border: 1px dashed #1a3a1a; border-radius: 4px; }
 </style>
 </head>
@@ -59,6 +70,7 @@ input[type=date] { color-scheme: dark; }
 
 <script>
 var S = [];
+var MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
 function pad(n) { return n < 10 ? '0'+n : ''+n; }
 function today() {
@@ -66,11 +78,6 @@ function today() {
   return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
 }
 function eur(n) { return n.toFixed(2).replace('.', ',') + ' \u20ac'; }
-function fdate(iso) {
-  var d = new Date(iso);
-  var months = ['jan','fev','mar','avr','mai','jun','jul','aou','sep','oct','nov','dec'];
-  return pad(d.getDate()) + ' ' + months[d.getMonth()];
-}
 
 function load() {
   try {
@@ -90,18 +97,13 @@ function ajouter() {
   var rv = document.getElementById('f-r').value.replace(',','.');
   var h = parseFloat(hv);
   var r = parseFloat(rv);
-  if (isNaN(h) || h <= 0 || isNaN(r) || r <= 0) {
-    alert('Entre les heures et le taux.');
-    return;
-  }
+  if (isNaN(h) || h <= 0 || isNaN(r) || r <= 0) { alert('Entre les heures et le taux.'); return; }
   var dv = document.getElementById('f-d').value;
   var iso;
   if (dv && dv.length === 10) {
     var p = dv.split('-');
     iso = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]), 12).toISOString();
-  } else {
-    iso = new Date().toISOString();
-  }
+  } else { iso = new Date().toISOString(); }
   var nv = document.getElementById('f-n').value.trim();
   S.push({ id: new Date().getTime(), date: iso, h: h, r: r, e: Math.round(h*r*100)/100, n: nv });
   S.sort(function(a,b){ return new Date(b.date).getTime() - new Date(a.date).getTime(); });
@@ -120,9 +122,7 @@ function ajouter() {
 function suppr(id) {
   if (!confirm('Supprimer ?')) return;
   var newS = [];
-  for (var i = 0; i < S.length; i++) {
-    if (S[i].id !== id) newS.push(S[i]);
-  }
+  for (var i = 0; i < S.length; i++) { if (S[i].id !== id) newS.push(S[i]); }
   S = newS;
   persist();
   refresh();
@@ -142,19 +142,46 @@ function refresh() {
   document.getElementById('s-hours').textContent = totH.toFixed(1) + ' h';
   document.getElementById('s-avg').textContent = avg > 0 ? eur(avg) : '\u2014';
   document.getElementById('hist-title').textContent = 'Historique \u00b7 ' + S.length + ' session' + (S.length > 1 ? 's' : '');
+
   var el = document.getElementById('list');
   if (S.length === 0) { el.innerHTML = '<div class="empty">Aucune session encore.</div>'; return; }
-  var html = '';
+
+  // Group by month
+  var groups = {};
+  var order = [];
   for (var i = 0; i < S.length; i++) {
     var s = S[i];
-    html += '<div class="item">'
-      + '<div class="item-date">' + fdate(s.date) + '</div>'
-      + '<div class="item-info">' + s.h + 'h \u00d7 ' + s.r + '\u20ac'
-      + (s.n ? '<span class="item-note">' + s.n + '</span>' : '')
-      + '</div>'
-      + '<div class="item-amt">' + eur(s.e) + '</div>'
-      + '<button class="del" onclick="suppr(' + s.id + ')">\u00d7</button>'
-      + '</div>';
+    var d = new Date(s.date);
+    var key = d.getFullYear() + '-' + pad(d.getMonth()+1);
+    var label = MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+    if (!groups[key]) { groups[key] = { label: label, sessions: [], tot: 0, totH: 0 }; order.push(key); }
+    groups[key].sessions.push(s);
+    groups[key].tot += s.e;
+    groups[key].totH += s.h;
+  }
+
+  var html = '';
+  for (var k = 0; k < order.length; k++) {
+    var g = groups[order[k]];
+    html += '<div class="month-block">'
+      + '<div class="month-header">'
+      + '<div class="month-name">' + g.label + '</div>'
+      + '<div class="month-stats">'
+      + g.totH.toFixed(1) + 'h &nbsp;·&nbsp; <span class="month-total">' + eur(g.tot) + '</span>'
+      + '</div></div>';
+    for (var j = 0; j < g.sessions.length; j++) {
+      var s = g.sessions[j];
+      var d = new Date(s.date);
+      html += '<div class="item">'
+        + '<div class="item-date">' + pad(d.getDate()) + '</div>'
+        + '<div class="item-info">' + s.h + 'h \u00d7 ' + s.r + '\u20ac'
+        + (s.n ? '<span class="item-note">' + s.n + '</span>' : '')
+        + '</div>'
+        + '<div class="item-amt">' + eur(s.e) + '</div>'
+        + '<button class="del" onclick="suppr(' + s.id + ')">\u00d7</button>'
+        + '</div>';
+    }
+    html += '</div>';
   }
   el.innerHTML = html;
 }
