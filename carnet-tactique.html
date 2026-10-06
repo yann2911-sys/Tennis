@@ -1,0 +1,1168 @@
+<title>Carnet tactique TCB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout : appli téléphone, une colonne, barre d'onglets fixe en bas ; le court est dessiné en paysage, filet vertical */
+:root {
+  --bg: #EEF3F2;
+  --surface: #FFFFFF;
+  --ink: #12232A;
+  --muted: #56686D;
+  --line: #D2DDDB;
+  --accent: #1B5C78;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #DCEAF0;
+  --ball: #D4E23A;
+  --ball-ink: #1B2410;
+  --court: #2C6B88;
+  --court-out: #3B7F67;
+  --court-line: #FFFFFF;
+  --good: #23784A;
+  --good-soft: #DDF0E4;
+  --warn: #A2620F;
+  --warn-soft: #F7EAD3;
+  --tac: #1B5C78;
+  --tec: #8A4B23;
+  --phy: #5A4F8F;
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D171B; --surface: #15232A; --ink: #E4EDED; --muted: #92A4A8; --line: #263840;
+    --accent: #72B6D4; --accent-ink: #0D171B; --accent-soft: #1A3644;
+    --ball: #D4E23A; --ball-ink: #1B2410;
+    --court: #235670; --court-out: #2C5F4E; --court-line: #F2F6F6;
+    --good: #6CCB94; --good-soft: #193628; --warn: #E3AE5C; --warn-soft: #3A2D17;
+    --tac: #72B6D4; --tec: #E19A6C; --phy: #B0A6EA;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D171B; --surface: #15232A; --ink: #E4EDED; --muted: #92A4A8; --line: #263840;
+  --accent: #72B6D4; --accent-ink: #0D171B; --accent-soft: #1A3644;
+  --ball: #D4E23A; --ball-ink: #1B2410;
+  --court: #235670; --court-out: #2C5F4E; --court-line: #F2F6F6;
+  --good: #6CCB94; --good-soft: #193628; --warn: #E3AE5C; --warn-soft: #3A2D17;
+  --tac: #72B6D4; --tec: #E19A6C; --phy: #B0A6EA;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45; margin: 0; }
+.wrap { max-width: 720px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 96px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; text-wrap: balance; margin: 0; }
+h1 { font-size: 30px; line-height: 1; }
+h2 { font-size: 24px; line-height: 1.1; }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-family: var(--body); font-weight: 600; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-block: 8px 14px; }
+.top small { display: block; color: var(--muted); font-size: 13px; margin-top: 4px; }
+.count { font-family: var(--display); font-size: 15px; color: var(--muted); white-space: nowrap; }
+
+/* Filtres */
+.search { width: 100%; padding: 11px 14px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); font-size: 16px; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-block: 8px 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 1px solid var(--line); background: var(--surface); padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 500; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.filters { display: grid; gap: 2px; margin-bottom: 12px; }
+
+/* Liste */
+.list { display: grid; gap: 8px; }
+.card { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; text-align: left; width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; }
+.card:active { transform: scale(.995); }
+.card .t { font-family: var(--display); font-size: 21px; line-height: 1.1; font-weight: 600; }
+.card .o { color: var(--muted); font-size: 14px; grid-column: 1 / -1; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; grid-column: 1 / -1; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; border: 1px solid currentColor; }
+.pill.tactique { color: var(--tac); } .pill.technique { color: var(--tec); } .pill.physique { color: var(--phy); }
+.star { background: none; border: 0; font-size: 22px; line-height: 1; padding: 0 2px; color: var(--muted); }
+.star[aria-pressed="true"] { color: var(--warn); }
+.empty { padding: 28px 16px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--r); }
+
+/* Détail */
+.back { background: none; border: 0; color: var(--accent); font-weight: 600; padding: 6px 0; font-size: 16px; }
+.detail { display: grid; gap: 18px; }
+.detail header { display: grid; gap: 6px; }
+.court { width: 100%; height: auto; display: block; border-radius: var(--r); background: var(--court-out); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.sw { width: 14px; height: 14px; border-radius: 50%; display: inline-block; border: 1px solid var(--line); }
+.sec { display: grid; gap: 6px; }
+.sec ol, .sec ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.fact { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; min-width: 0; }
+.fact b { display: block; font-family: var(--display); font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.fact span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 8px; }
+.kv { display: grid; gap: 2px; }
+.kv dt { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.kv dd { margin: 0; }
+.colors { display: grid; gap: 6px; }
+.col { display: grid; grid-template-columns: 70px 1fr; gap: 10px; align-items: start; }
+.dot { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14px; }
+.dot i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.c-rouge { background: #D9412E; } .c-orange { background: #EE8A1E; } .c-vert { background: #6CB33F; }
+.fix { display: grid; gap: 6px; }
+.fix div { display: grid; gap: 2px; padding-left: 10px; border-left: 3px solid var(--warn); }
+.fix div em { font-style: normal; color: var(--muted); font-size: 14px; }
+.indic { background: var(--good-soft); border-radius: var(--r); padding: 10px 14px; display: grid; gap: 4px; }
+.indic h3 { color: var(--good); }
+textarea { width: 100%; min-height: 80px; padding: 10px 12px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); resize: vertical; font-size: 16px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 11px 16px; border-radius: var(--r); font-weight: 600; font-size: 15px; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.danger { border-color: var(--warn); background: transparent; color: var(--warn); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(80px + env(safe-area-inset-bottom, 0px)); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; z-index: 30; }
+
+/* Séance */
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.form .full { grid-column: 1 / -1; }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label, .fieldset legend { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600; }
+.field input { width: 100%; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 16px; }
+.fieldset { border: 0; padding: 0; margin: 0; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.fieldset legend { width: 100%; margin-bottom: 4px; padding: 0; }
+.tog { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); padding: 6px 10px; border-radius: 999px; font-size: 14px; font-weight: 500; }
+.tog input { margin: 0; accent-color: var(--accent); }
+.note { background: var(--accent-soft); border-radius: var(--r); padding: 10px 14px; font-size: 14px; }
+.items { display: grid; gap: 6px; }
+.item { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 10px; }
+.item .n { font-weight: 600; min-width: 0; }
+.item .n small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; }
+.item .ctl { display: flex; gap: 4px; align-items: center; }
+.item input { width: 56px; padding: 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); text-align: center; font-variant-numeric: tabular-nums; }
+.ib { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); font-size: 15px; line-height: 1; }
+.sum { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.state { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-top: 4px; }
+.state.ok { background: var(--good-soft); color: var(--good); }
+.state.ko { background: var(--warn-soft); color: var(--warn); }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table { border-collapse: collapse; font-size: 14px; min-width: 760px; width: 100%; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--bg); }
+td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td small { display: block; color: var(--muted); }
+.confirm { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+
+/* Repères */
+.refs { display: grid; gap: 14px; }
+.refs .box p + p { margin-top: 4px; }
+.sit { display: grid; gap: 8px; }
+.sit div { display: grid; grid-template-columns: 110px 1fr; gap: 10px; padding-block: 6px; border-top: 1px solid var(--line); }
+.sit div:first-child { border-top: 0; }
+.sit b { font-family: var(--display); font-size: 18px; font-weight: 600; }
+.nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+/* Barre d'onglets */
+.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.tabs button { background: none; border: 0; padding: 10px 4px 12px; font-family: var(--display); font-size: 17px; font-weight: 600; color: var(--muted); letter-spacing: .02em; position: relative; }
+.tabs button[aria-selected="true"] { color: var(--accent); }
+.tabs button[aria-selected="true"]::before { content: ""; position: absolute; top: -1px; left: 25%; right: 25%; height: 3px; background: var(--accent); border-radius: 0 0 3px 3px; }
+.badge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 999px; background: var(--ball); color: var(--ball-ink); font-family: var(--body); font-size: 12px; line-height: 18px; vertical-align: 2px; }
+@media (max-width: 420px) {
+  .sit div { grid-template-columns: 1fr; gap: 2px; }
+  .col { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap" id="app"></div>
+<nav class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-tab="ex" id="tab-ex">Exercices</button>
+  <button role="tab" data-tab="se" id="tab-se">Séance</button>
+  <button role="tab" data-tab="re" id="tab-re">Repères</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ---------- Données ----------
+   Schémas : x = longueur du court (0 = ligne de fond gauche, 23,77 = ligne de fond droite, filet à 11,885),
+   y = largeur (0 à 10,97 ; couloirs de 1,37 m). Joueurs droitiers ; un joueur à gauche a son coup droit vers le bas
+   de l'écran, un joueur à droite vers le haut. Pour un gaucher, inverser. */
+var SIT = {
+  servir: "Servir", retourner: "Retourner", construire: "Construire", attaquer: "Attaquer",
+  defendre: "Défendre", filet: "Filet", match: "Match", physique: "Physique"
+};
+var PUB = { galaxie: "Galaxie", college: "Collège", comp: "Compétiteurs", adultes: "Adultes" };
+var COUL = { rouge: "Rouge", orange: "Orange", vert: "Vert" };
+
+var EX = [
+{
+  id: "croise", t: "Croisé jusqu’à l’ouverture", axe: "tactique", sit: "construire",
+  pub: ["galaxie", "college", "comp", "adultes"], dur: 12, fpm: 8,
+  obj: "Tenir la diagonale avec de la marge, puis ouvrir long de ligne sur la première balle courte.",
+  eff: "2 par demi-court en largeur (4 par terrain : un binôme côté égalité, un côté avantage).",
+  mat: "6 coupelles qui prolongent la ligne médiane de service jusqu’au fond, des deux côtés du filet.",
+  place: "A et B (droitiers) dans la moitié droite de leur côté (côté égalité), 1 m derrière la ligne de fond.",
+  steps: [
+    "A met en jeu en coup droit après rebond, croisé, dans le demi-court de B.",
+    "Échange en coup droit croisé uniquement : la balle doit tomber dans le demi-court délimité par les coupelles.",
+    "À partir de la 5e frappe de l’échange, le joueur qui reçoit une balle courte (rebond devant la ligne de service) peut jouer long de ligne : le point devient libre sur tout le simple.",
+    "Le point continue jusqu’à la faute."
+  ],
+  rot: "Mise en jeu alternée à chaque point. Après 6 min, même exercice en revers croisé (côté avantage).",
+  score: "Partie en 11 points. Faute avant la 5e frappe : point à l’adversaire. Point gagné après une ouverture long de ligne : 2 points.",
+  defi: "Le binôme qui enchaîne le plus d’échanges de plus de 4 frappes sur 10 mises en jeu.",
+  reussite: "6 échanges sur 10 dépassent 4 frappes ; ouverture uniquement sur balle courte.",
+  coul: {
+    rouge: "Terrain rouge, balle rouge, mise en jeu à la main par-dessous. Ouverture autorisée dès la 3e frappe.",
+    orange: "Terrain orange, balle orange. Ouverture autorisée dès la 4e frappe.",
+    vert: "Simple entier, balle verte. Ouverture dès la 5e frappe, sur balle courte uniquement."
+  },
+  facile: "Échange coopératif croisé, on compte la série. Ouverture interdite.",
+  dur2: "Ouverture seulement après 6 frappes, et la balle d’ouverture doit tomber dans les 3 derniers mètres.",
+  obs: ["Hauteur de passage au-dessus du filet (1 m de marge)", "Patience : pas d’ouverture sur balle profonde", "Replacement au centre de la diagonale, pas au centre du court"],
+  err: [
+    ["Ouvre sur une balle basse et profonde", "Règle simple : je change de direction seulement si je frappe la balle dans le court."],
+    ["Balle trop près du filet, trop de fautes", "Viser 1 m au-dessus du filet et 1 m à l’intérieur des lignes."]
+  ],
+  indic: "Nombre d’échanges de plus de 4 frappes sur 10 mises en jeu.",
+  sch: {
+    cones: [[1.5,5.485],[3.5,5.485],[5.5,5.485],[18.3,5.485],[20.3,5.485],[22.3,5.485]],
+    pl: [{x:-0.8,y:8,l:"A",k:"j"},{x:24.6,y:3,l:"B",k:"j"}],
+    balls: [[-0.4,7.8,20.5,3.4,"1"],[24.2,3.2,3.5,7.6,"2"],[20.8,2.6,2.5,2.2,"5"]]
+  }
+},
+{
+  id: "profondeur", t: "Les 3 derniers mètres", axe: "tactique", sit: "construire",
+  pub: ["galaxie", "college", "comp", "adultes"], dur: 12, fpm: 9,
+  obj: "Jouer profond pour faire reculer l’adversaire : plus haut, pas plus fort.",
+  eff: "2 par moitié de court en longueur (binômes face à face), 2 binômes par terrain si on partage en largeur.",
+  mat: "8 bandes plates posées à 3 m de chaque ligne de fond, parallèles à elle (zone profonde).",
+  place: "A et B au centre, 1 m derrière leur ligne de fond.",
+  steps: [
+    "Phase 1 (5 min, coopératif) : échange libre en coup droit et revers. Chaque balle qui rebondit dans la zone profonde compte 1. Le binôme cumule sur ses échanges.",
+    "Phase 2 (7 min, compétitif) : point joué en fond de court, mise en jeu après rebond, interdit de monter au filet."
+  ],
+  rot: "Mise en jeu alternée à chaque point. Changer de côté à la moitié de la phase 2.",
+  score: "Point gagné = 1. Trois balles de suite dans la zone profonde dans le même échange = 1 point bonus, même si le point est perdu.",
+  defi: "Phase 1 : record du binôme de balles profondes en 5 min.",
+  reussite: "5 balles sur 10 dans la zone profonde en phase 1.",
+  coul: {
+    rouge: "Terrain rouge, zone profonde = 2 derniers mètres.",
+    orange: "Terrain orange, zone profonde = 2,5 derniers mètres.",
+    vert: "Court entier, zone profonde = 3 derniers mètres."
+  },
+  facile: "Zone profonde agrandie à toute la moitié arrière (derrière la ligne de service).",
+  dur2: "Une balle qui tombe devant la ligne de service donne le point à l’adversaire.",
+  obs: ["Trajectoire 1 à 1,5 m au-dessus du filet", "Fin de geste vers l’avant et le haut", "Joueur qui recule quand la balle adverse est profonde"],
+  err: [
+    ["Cherche la profondeur en frappant plus fort", "Consigne : plus haut, pas plus fort. Viser le haut de la clôture du fond adverse."],
+    ["Frappe en reculant, la balle tombe courte", "Se placer tôt derrière la balle pour frapper en avançant."]
+  ],
+  indic: "Balles profondes sur 10 frappes (compter une série de 10 en phase 1).",
+  sch: {
+    tg: [{x:0,y:1.37,w:3,h:8.23,l:"zone"},{x:20.77,y:1.37,w:3,h:8.23,l:"zone"}],
+    pl: [{x:-0.8,y:5.5,l:"A",k:"j"},{x:24.6,y:5.5,l:"B",k:"j"}],
+    balls: [[-0.4,5.6,22,4,""],[24.2,5.2,1.6,7.2,""]]
+  }
+},
+{
+  id: "feu", t: "Feu tricolore", axe: "tactique", sit: "construire",
+  pub: ["galaxie", "college", "adultes"], dur: 12, fpm: 7,
+  obj: "Choisir son intention selon l’endroit où l’on frappe : défendre, construire ou attaquer.",
+  eff: "2 par moitié de court en longueur.",
+  mat: "Par côté : 4 bandes plates posées 1 m derrière la ligne de fond (limite défense), 4 coupelles 2 m devant la ligne de fond (limite attaque).",
+  place: "A et B au centre de leur ligne de fond.",
+  steps: [
+    "Rouge (défense) : je frappe derrière les bandes plates. Je joue haut, croisé, au centre de l’adversaire.",
+    "Orange (construction) : je frappe entre les bandes et les coupelles. Je joue profond, croisé.",
+    "Vert (attaque) : je frappe devant les coupelles. Je joue long de ligne ou dans l’ouverture, puis j’avance.",
+    "Point joué libre, mise en jeu en coup droit après rebond, au centre."
+  ],
+  rot: "Mise en jeu alternée. Changer de côté toutes les 3 min.",
+  score: "Partie en 11. Faute en tentant d’attaquer depuis la zone rouge = 2 points à l’adversaire. Point gagné depuis la zone verte = 2 points.",
+  defi: "Gagner 3 points d’affilée depuis la zone verte.",
+  reussite: "Plus aucune attaque tentée depuis la zone rouge après 6 min.",
+  coul: {
+    rouge: "Terrain rouge : défense = derrière la ligne de fond ; attaque = devant le milieu du demi-terrain.",
+    orange: "Terrain orange : attaque = devant la ligne de service orange.",
+    vert: "Court entier, zones comme décrit."
+  },
+  facile: "Coopératif : A annonce à voix haute la couleur de sa zone avant chaque frappe.",
+  dur2: "Le point gagné depuis la zone verte ne compte double que si le joueur termine au filet.",
+  obs: ["Le joueur sait dire dans quelle zone il frappait", "Hauteur des balles de défense", "Avancée après l’attaque"],
+  err: [
+    ["Attaque en reculant", "Pas d’attaque si les pieds sont derrière les bandes."],
+    ["Reste en construction sur une balle facile", "Une balle qui rebondit devant les coupelles se joue en attaque."]
+  ],
+  indic: "Points perdus sur attaque depuis la zone rouge (objectif : 0).",
+  sch: {
+    tg: [{x:24.77,y:0.6,w:1.3,h:9.77,l:"défense"},{x:21.77,y:1.37,w:3,h:8.23,l:"constr."},{x:17.37,y:1.37,w:4.4,h:8.23,l:"attaque"}],
+    pl: [{x:-0.8,y:5.5,l:"A",k:"j"},{x:23.2,y:5.5,l:"B",k:"j"}],
+    balls: [[-0.4,5.5,19.5,6.5,"1"],[19.8,6.2,1.5,1.8,"2"]]
+  }
+},
+{
+  id: "courte", t: "Balle courte, j’avance", axe: "tactique", sit: "attaquer",
+  pub: ["college", "comp", "adultes", "galaxie"], dur: 12, fpm: 5,
+  obj: "Reconnaître la balle courte, attaquer long de ligne et finir au filet.",
+  eff: "2 par moitié de court en longueur : un envoyeur E, un joueur J.",
+  mat: "10 balles par binôme dans la poche ou au sol derrière E. 4 coupelles pour marquer la zone courte (entre ligne de service et 2 m derrière).",
+  place: "E au centre, derrière sa ligne de fond, balles à portée. J au centre de sa ligne de fond.",
+  steps: [
+    "E envoie à la raquette une balle profonde au centre. J la renvoie croisé profond.",
+    "E envoie aussitôt une 2e balle courte côté coup droit de J (rebond dans la zone courte).",
+    "J attaque long de ligne, suit sa balle, se place sur la ligne de sa balle et fait un arrêt (split-step) quand E frappe.",
+    "E joue le point (passing ou lob). Le point continue jusqu’à la faute."
+  ],
+  rot: "6 séquences puis E et J échangent les rôles. 2 tours chacun.",
+  score: "J : point gagné au filet = 2, point gagné autrement = 1. E : point gagné = 1. Total sur 12 séquences par joueur.",
+  defi: "Battre son total au 2e tour.",
+  reussite: "7 attaques sur 10 dans le court, long de ligne.",
+  coul: {
+    rouge: "Terrain rouge, E envoie à la main par-dessous. Attaque n’importe où, puis toucher le filet du bout de la raquette = point bonus.",
+    orange: "Terrain orange, E envoie à la raquette. Approche long de ligne.",
+    vert: "Court entier, comme décrit."
+  },
+  facile: "E ne joue pas le point : J finit par une volée sur une 3e balle envoyée par E.",
+  dur2: "La balle courte arrive alternativement en coup droit et en revers, sans annonce.",
+  obs: ["Approche long de ligne, pas croisée", "Placement décalé du côté de la balle d’approche", "Arrêt au moment de la frappe adverse"],
+  err: [
+    ["Approche croisée", "Elle ouvre l’angle du passing. Rappel : approche long de ligne, je suis ma balle."],
+    ["Monte sans s’arrêter et se fait passer", "Arrêt en appui sur les deux pieds au moment où E frappe."]
+  ],
+  indic: "Attaques dans le court sur 10 balles courtes.",
+  sch: {
+    tg: [{x:14.4,y:1.37,w:2.97,h:8.23,l:"courte"}],
+    pl: [{x:-0.8,y:5.5,l:"E",k:"e"},{x:24.4,y:5.5,l:"J",k:"j"}],
+    balls: [[-0.4,5.5,20,5,"1"],[22.6,5,2.2,8.2,"2"],[-0.4,5,15.3,2.6,"3"],[15.7,2.4,2.4,1.9,"4"]],
+    mv: [[24.4,5.5,16.6,3.2],[15.8,3.2,13.6,3.6]]
+  }
+},
+{
+  id: "serv1", t: "Service + 1", axe: "tactique", sit: "servir",
+  pub: ["comp", "adultes"], dur: 14, fpm: 5,
+  obj: "Enchaîner service placé et coup droit dans le côté ouvert.",
+  eff: "2 par terrain (serveur S, retourneur R). 4 joueurs : 2 terrains ou 2 binômes en alternance par point.",
+  mat: "4 coupelles par carré de service : une cible extérieure et une cible au T (1,5 × 1,5 m).",
+  place: "S en position de service côté égalité. R en position de retour.",
+  steps: [
+    "S annonce sa cible à voix basse (extérieur ou T) et sert.",
+    "R retourne (consigne pour R : retour au centre, profond).",
+    "S se décale pour jouer sa première frappe après le service en coup droit, dans le côté où R n’est pas.",
+    "Point joué jusqu’au bout."
+  ],
+  rot: "10 points de service (5 égalité, 5 avantage), puis S et R échangent. 2 tours.",
+  score: "S : point gagné en 3 frappes au plus (service compris) = 2. Autre point gagné = 1. R : point gagné = 1.",
+  defi: "Le serveur qui marque le plus en 10 points.",
+  reussite: "6 « + 1 » sur 10 joués en coup droit.",
+  facile: "R retourne volontairement au centre, sans chercher à gagner le point.",
+  dur2: "Deuxième balle uniquement : S sert seulement sa 2e balle.",
+  obs: ["Arrêt en appuis dès que le service passe le filet", "Décalage pour prendre la balle en coup droit", "Le « + 1 » vise le côté ouvert, pas l’adversaire"],
+  err: [
+    ["Reste figé après le service", "Arrêt en appuis au moment où R frappe, puis premiers pas vers la balle."],
+    ["Joue le « + 1 » sur l’adversaire", "Regarder où se trouve R avant de frapper ; viser l’autre côté."]
+  ],
+  indic: "% de premières balles dans le carré et nombre de « + 1 » joués en coup droit sur 10.",
+  sch: {
+    tg: [{x:6.6,y:5.7,w:1.6,h:1.5,l:"T"},{x:6.6,y:7.9,w:1.6,h:1.5,l:"ext."}],
+    pl: [{x:24.3,y:4.6,l:"S",k:"j"},{x:-0.6,y:9,l:"R",k:"j"}],
+    balls: [[24,4.7,7.4,8.6,"1"],[-0.2,9.2,21,5.6,"2"],[21.4,5.8,2.4,2,"3"]],
+    mv: [[24.3,4.6,22.4,6.6]]
+  }
+},
+{
+  id: "retour", t: "Retour profond au centre", axe: "tactique", sit: "retourner",
+  pub: ["comp", "adultes"], dur: 12, fpm: 5,
+  obj: "Neutraliser le service : retour profond au centre pour enlever les angles au serveur.",
+  eff: "2 par terrain (serveur S, retourneur R).",
+  mat: "4 coupelles : cible profonde centrale de 3 m de large dans les 3 derniers mètres.",
+  place: "S en position de service. R à la hauteur de la ligne de fond, en retour.",
+  steps: [
+    "S sert sa 1re balle à vitesse de match, cible libre.",
+    "R retourne vers la cible centrale profonde.",
+    "Point joué jusqu’au bout."
+  ],
+  rot: "10 retours (5 égalité, 5 avantage), puis on échange les rôles. 2 tours.",
+  score: "R : retour dans la cible = 1 point bonus. Point gagné = 1 pour chacun.",
+  defi: "Le plus de retours dans la cible sur 10.",
+  reussite: "8 retours en jeu sur 10, dont 4 dans la cible.",
+  facile: "S sert à 70 % de sa vitesse.",
+  dur2: "S sert sa 1re balle depuis 1 m devant la ligne de fond (le temps de réaction diminue).",
+  obs: ["Arrêt en appuis au moment où S frappe", "Préparation courte, épaules tournées", "Balle prise devant le corps"],
+  err: [
+    ["Grande préparation, retour en retard", "Raquette devant, je tourne les épaules et je bloque la balle."],
+    ["Retour qui descend au filet", "Viser 1,5 m au-dessus du filet : la profondeur vient de la hauteur."]
+  ],
+  indic: "Retours en jeu sur 10 et retours dans la cible sur 10.",
+  sch: {
+    tg: [{x:20.77,y:4,w:3,h:3,l:"cible"}],
+    pl: [{x:24.3,y:4.6,l:"S",k:"j"},{x:-0.6,y:9,l:"R",k:"j"}],
+    balls: [[24,4.7,7.8,8.4,"1"],[-0.2,9,22.3,5.5,"2"]]
+  }
+},
+{
+  id: "defense", t: "Défendre haut et profond", axe: "tactique", sit: "defendre",
+  pub: ["college", "comp", "adultes", "galaxie"], dur: 12, fpm: 5,
+  obj: "En course, gagner du temps avec une balle haute et profonde, puis se replacer.",
+  eff: "2 par moitié de court en longueur : un attaquant A, un défenseur D.",
+  mat: "8 bandes plates : zone profonde (3 derniers mètres) du côté de A. 10 balles pour A.",
+  place: "A entre la ligne de service et la ligne de fond, au centre. D au centre de sa ligne de fond.",
+  steps: [
+    "A envoie à la raquette une balle rapide à 2 m de la ligne de côté, alternativement côté coup droit puis côté revers de D.",
+    "D court, défend avec une balle haute (au moins 2 m au-dessus du filet) qui doit tomber dans la zone profonde.",
+    "D se replace au centre de l’angle (légèrement du côté où il a joué).",
+    "A joue le point en restant dans le court : interdit de reculer derrière la ligne de fond."
+  ],
+  rot: "8 séquences puis on échange les rôles. 2 tours.",
+  score: "D : défense dans la zone profonde = 1, point gagné = 1. A : point gagné = 1.",
+  defi: "D marque plus que A sur ses 8 séquences.",
+  reussite: "5 défenses sur 8 dans la zone profonde.",
+  coul: {
+    rouge: "Terrain rouge, A envoie à la main par-dessous, balle haute obligatoire (au-dessus de la tête de A).",
+    orange: "Terrain orange, A envoie à la raquette, moins vite.",
+    vert: "Court entier, comme décrit."
+  },
+  facile: "A envoie la balle toujours du même côté.",
+  dur2: "A enchaîne 2 balles de suite opposées avant de jouer le point.",
+  obs: ["Fin de geste haute (raquette au-dessus de l’épaule)", "Hauteur : 2 m au-dessus du filet", "Replacement immédiat après la frappe"],
+  err: [
+    ["Contre à plat en course, faute", "En course je joue haut. Je ne cherche pas le point."],
+    ["Se replace au milieu exact du court", "Se replacer au centre des angles possibles de A, un pas du côté où l’on a joué."]
+  ],
+  indic: "Défenses dans la zone profonde sur 8.",
+  sch: {
+    tg: [{x:20.77,y:1.37,w:3,h:8.23,l:"zone"}],
+    pl: [{x:19.2,y:5.5,l:"A",k:"e"},{x:-0.6,y:5.5,l:"D",k:"j"}],
+    balls: [[18.8,5.6,3.5,9,"1"],[1.2,9.2,22,4.2,"2"]],
+    mv: [[-0.6,5.5,1,8.8],[1,8.8,-0.2,6.2]]
+  }
+},
+{
+  id: "passing", t: "Passing ou lob", axe: "tactique", sit: "defendre",
+  pub: ["comp", "adultes", "college"], dur: 10, fpm: 6,
+  obj: "Choisir entre passing et lob selon la position du volleyeur.",
+  eff: "2 par moitié de court en longueur : volleyeur V, passeur P.",
+  mat: "10 balles pour V.",
+  place: "V au filet, à 2 à 4 m (il choisit sa distance à chaque point). P au centre de sa ligne de fond.",
+  steps: [
+    "V envoie à la main une balle moyenne vers P, alternativement côté coup droit et côté revers.",
+    "P choisit : V à moins de 2 m du filet, je lobe ; V à 3 m ou plus, passing long de ligne ou croisé court.",
+    "Point joué jusqu’au bout."
+  ],
+  rot: "7 points, puis on échange les rôles. 2 tours.",
+  score: "Partie en 7. P : point gagné du premier coup = 2.",
+  defi: "P gagne 4 points sur 7.",
+  reussite: "Le choix de P correspond à la position de V sur 6 balles sur 7.",
+  facile: "V annonce sa position (« près » / « loin ») avant d’envoyer.",
+  dur2: "V envoie à la raquette depuis la ligne de service, puis avance.",
+  obs: ["P regarde V avant de frapper", "Lob : haut et long, pas en défense désespérée", "Passing : bas, la balle tombe aux pieds ou passe sur le côté"],
+  err: [
+    ["Frappe en force sur le volleyeur", "Viser à côté ou aux pieds, pas dans le corps."],
+    ["Lob trop court", "Viser la ligne de fond : un lob court se fait smasher."]
+  ],
+  indic: "Bons choix sur 7 balles.",
+  sch: {
+    pl: [{x:13.9,y:5.5,l:"V",k:"e"},{x:-0.6,y:5.5,l:"P",k:"j"}],
+    balls: [[13.5,5.5,2.8,3.8,"1"],[2.6,3.6,21,1.9,"2"],[2.6,3.6,22,7.2,"2"]]
+  }
+},
+{
+  id: "volee", t: "Volée qui ferme", axe: "technique", sit: "filet",
+  pub: ["galaxie", "college", "comp", "adultes"], dur: 10, fpm: 6,
+  obj: "Volée bloquée, tamis devant soi, d’abord profonde puis courte croisée pour finir.",
+  eff: "2 par moitié de court en longueur : envoyeur E, volleyeur V.",
+  mat: "8 coupelles : cible 1 profonde croisée (3 × 3 m), cible 2 courte croisée (devant la ligne de service, près du couloir).",
+  place: "E au centre de sa ligne de fond, balles en poche. V à 3 m du filet, au centre.",
+  steps: [
+    "E envoie une balle alternativement côté coup droit et côté revers de V.",
+    "Balles 1 à 5 : V joue en volée vers la cible 1 (profonde croisée).",
+    "Balles 6 à 10 : V joue en volée vers la cible 2 (courte croisée)."
+  ],
+  rot: "10 balles, puis E et V échangent. 3 tours chacun.",
+  score: "Balle dans la cible = 1 point. Total sur 10.",
+  defi: "Battre son score au tour suivant.",
+  reussite: "6 volées sur 10 dans la cible.",
+  coul: {
+    rouge: "E à 3 m de V, envoi à la main par-dessous, balle rouge. Cibles = 4 coupelles au sol à 1 m de la ligne de fond rouge.",
+    orange: "E envoie à la main depuis la ligne de service, balle orange.",
+    vert: "E envoie à la raquette depuis le fond, balle verte."
+  },
+  facile: "V attrape d’abord la balle dans le tamis puis la relâche (2 balles), avant de volleyer.",
+  dur2: "E envoie à la raquette, plus vite, sans alterner de façon prévisible.",
+  obs: ["Tamis devant soi, toujours visible du coin de l’œil", "Pas en avant du pied opposé", "Poignet fixe, pas d’armé"],
+  err: [
+    ["Arme comme un coup droit", "Raquette devant. J’attrape la balle avec le tamis."],
+    ["Volée tardive, à côté du corps", "Je vais chercher la balle devant moi avec un pas."]
+  ],
+  indic: "Volées dans la cible sur 10.",
+  sch: {
+    tg: [{x:20.2,y:1.37,w:3,h:3,l:"cible 1"},{x:12.6,y:1.37,w:2.8,h:2.3,l:"cible 2"}],
+    pl: [{x:24.4,y:5.5,l:"E",k:"e"},{x:8.9,y:5.5,l:"V",k:"j"}],
+    balls: [[24,5.6,9.4,7.4,"1"],[9.6,7.2,21.6,2.9,"2"]]
+  }
+},
+{
+  id: "servjambe", t: "Service : la jambe arrière pousse", axe: "technique", sit: "servir",
+  pub: ["comp"], dur: 15, fpm: 4,
+  obj: "Relais d’appuis au service : la jambe arrière pousse avant de décoller (objectif Maxime a).",
+  eff: "1 joueur, seul sur une moitié de court. Le coach filme.",
+  mat: "Panier de 30 balles, 4 coupelles (cibles T et extérieur), téléphone pour filmer de côté au ralenti.",
+  place: "Joueur en position de service côté égalité. Coach (ou téléphone posé) de côté, à 4 m, à hauteur de la ligne de fond.",
+  steps: [
+    "Série 1 (10 services) : exagération. Le pied arrière reste collé au sol jusqu’à l’impact. Le joueur sent la poussée par les deux jambes.",
+    "Série 2 (10 services) : en 2 temps. Lancer, ramener le pied arrière près du pied avant, flexion visible des deux genoux (pause d’1 s), puis poussée des deux jambes ensemble vers la balle.",
+    "Série 3 (10 services) : service normal, le joueur garde la sensation de la série 2. Filmer cette série."
+  ],
+  rot: "Ramasser après chaque série (1 min). Côté avantage à la séance suivante.",
+  score: "Série 3 : nombre de services dans la cible (T ou extérieur annoncé) sur 10.",
+  defi: "Série 3 : 6 premières balles dans le carré sur 10, pied arrière correct à la vidéo.",
+  reussite: "À la vidéo, le pied arrière ne quitte le sol qu’au moment de la poussée sur 7 services sur 10.",
+  facile: "Série 1 et 2 sans balle (geste à vide), puis avec balle.",
+  dur2: "Enchaîner service + première frappe sur balle envoyée par le coach.",
+  obs: ["Le talon arrière décolle-t-il pendant le lancer ? (défaut)", "Flexion des deux genoux visible avant la poussée", "Le joueur monte vers la balle, il ne bascule pas vers l’avant"],
+  err: [
+    ["Jambe arrière qui décolle au lancer", "Série 1 : pied collé au sol jusqu’à l’impact, pour retrouver la poussée."],
+    ["Flexion d’une seule jambe", "Ramener le pied arrière puis fléchir les deux genoux ensemble."]
+  ],
+  indic: "Services corrects à la vidéo sur 10 + % de premières balles dans le carré. Test de référence : 20 premières balles filmées, à refaire toutes les 4 à 6 semaines.",
+  sch: {
+    tg: [{x:6.6,y:5.7,w:1.6,h:1.5,l:"T"},{x:6.6,y:7.9,w:1.6,h:1.5,l:"ext."}],
+    pl: [{x:24.3,y:4.6,l:"M",k:"j"},{x:24.3,y:-0.4,l:"C",k:"c"}],
+    balls: [[24,4.7,7.4,6.4,""]]
+  }
+},
+{
+  id: "ligneforce", t: "Ligne de force et poids de balle", axe: "technique", sit: "construire",
+  pub: ["comp", "adultes"], dur: 15, fpm: 5,
+  obj: "Accompagner la balle dans l’axe de la cible pour la rendre lourde (objectif Maxime b).",
+  eff: "2 par moitié de court en longueur : envoyeur E, joueur J. Ou coach envoyeur en individuel.",
+  mat: "8 coupelles : 2 cibles de 3 × 3,5 m dans les 3 derniers mètres (long de ligne et croisé).",
+  place: "E au centre de sa ligne de fond. J au centre de sa ligne de fond.",
+  steps: [
+    "E envoie à la raquette des balles moyennes, régulières, côté coup droit de J.",
+    "J joue 5 balles long de ligne, puis 5 croisées, vers la cible annoncée.",
+    "On compte les balles dans la cible et, parmi elles, celles dont le 2e rebond touche la clôture du fond (balle lourde)."
+  ],
+  rot: "10 balles puis on échange. 3 séries chacun, revers à la 3e série.",
+  score: "Balle dans la cible = 1. Balle dans la cible avec 2e rebond dans la clôture = 2.",
+  defi: "12 points sur une série de 10.",
+  reussite: "6 balles sur 10 dans la cible, dont 3 lourdes.",
+  facile: "Cibles élargies à toute la largeur du simple.",
+  dur2: "E envoie plus vite et plus loin : J doit se déplacer avant de frapper.",
+  obs: ["Transfert du poids vers l’avant à l’impact", "Fin de geste dans l’axe de la cible avant de s’enrouler", "Tête immobile à l’impact"],
+  err: [
+    ["Geste qui s’enroule trop tôt autour du corps", "Pousser la balle 50 cm de plus vers la cible avant de finir."],
+    ["Frappe en reculant", "Reculer avant le rebond, frapper en avançant."]
+  ],
+  indic: "Balles dans la cible sur 10 et balles lourdes sur 10. Test de référence : 20 coups droits (10 long de ligne, 10 croisés), toutes les 4 à 6 semaines.",
+  sch: {
+    tg: [{x:0,y:1.37,w:3,h:3.5,l:"ligne"},{x:0,y:6.1,w:3,h:3.5,l:"croisé"}],
+    pl: [{x:-0.8,y:5.5,l:"E",k:"e"},{x:24.4,y:5.5,l:"J",k:"j"}],
+    balls: [[-0.4,5.4,20,3.6,"1"],[22.4,3.4,1.5,2.9,"2"],[22.4,3.6,1.5,7.6,"2"]]
+  }
+},
+{
+  id: "papillon", t: "Papillon : frappe et replacement", axe: "technique", sit: "construire",
+  pub: ["comp", "adultes", "college"], dur: 10, fpm: 5,
+  obj: "Appuis : se déplacer vite, frapper équilibré, se replacer avec un arrêt en appuis (objectif Maxime c).",
+  eff: "2 par moitié de court : envoyeur E, joueur J. 3 joueurs : le 3e ramasse et prend la place de E.",
+  mat: "1 coupelle au centre, 1 m derrière la ligne de fond de J. Panier de balles pour E.",
+  place: "E au centre de sa ligne de fond. J sur la coupelle.",
+  steps: [
+    "E envoie alternativement à 2 m de la ligne de côté, côté coup droit puis côté revers de J.",
+    "J frappe croisé profond, revient toucher la coupelle du pied en pas chassés, fait un arrêt en appuis au moment où E frappe.",
+    "6 balles par série."
+  ],
+  rot: "Série de 6, récupération 40 s (J devient ramasseur). 4 séries chacun.",
+  score: "Balle en jeu au-delà de la ligne de service = 1. Total sur 6.",
+  defi: "6 sur 6 sur une série.",
+  reussite: "5 balles sur 6 en jeu, arrêt en appuis à chaque frappe de E.",
+  facile: "E attend que J touche la coupelle pour envoyer.",
+  dur2: "E envoie dès que J a frappé ; 8 balles par série.",
+  obs: ["Arrêt en appuis synchronisé avec la frappe de E", "Premier pas croisé vers la balle", "Retour en pas chassés, buste face au filet"],
+  err: [
+    ["Arrive face à la balle, frappe déséquilibrée", "Dernier appui de côté, épaules tournées avant le rebond."],
+    ["Pas d’arrêt avant la frappe de E", "Arrêt en appuis à chaque frappe de E, même au repos."]
+  ],
+  indic: "Balles en jeu sur 6 à la 4e série (fatigue). Test de référence : 3 séries de 6, toutes les 4 à 6 semaines.",
+  sch: {
+    cones: [[24.8,5.485]],
+    pl: [{x:-0.8,y:5.5,l:"E",k:"e"},{x:24.8,y:5.485,l:"J",k:"j"}],
+    balls: [[-0.4,5.3,21.6,2.4,"1"],[-0.4,5.7,21.6,8.6,"2"]],
+    mv: [[24.6,5.2,22.8,2.8],[24.6,5.8,22.8,8.2]]
+  }
+},
+{
+  id: "gainage", t: "Gainage dynamique", axe: "physique", sit: "physique",
+  pub: ["comp"], dur: 9, fpm: 0,
+  obj: "Gainage dynamique en début de séance, 8 à 10 min (priorité physique Maxime).",
+  eff: "1 à 4 joueurs, sur le côté du court.",
+  mat: "Aucun. 1 coupelle par joueur pour l’exercice 3.",
+  place: "Joueurs alignés derrière la ligne de fond, face au filet.",
+  steps: [
+    "Planche sur les mains, toucher l’épaule opposée en alternance, bassin immobile : 30 s.",
+    "Gainage latéral sur l’avant-bras, montée-descente du bassin : 20 s par côté.",
+    "Planche sur les avant-bras, déplacer la coupelle de gauche à droite devant soi d’une main : 30 s.",
+    "Grimpeur (montée de genoux en planche) lent et contrôlé : 30 s.",
+    "Pont fessier sur une jambe : 20 s par jambe."
+  ],
+  rot: "15 s de récupération entre les exercices. 2 tours.",
+  score: "—",
+  defi: "Bassin immobile sur toute la planche.",
+  reussite: "Aucune bascule du bassin pendant les touches d’épaule.",
+  facile: "Planches sur les genoux.",
+  dur2: "45 s par exercice.",
+  obs: ["Bassin aligné, pas de creux dans le dos", "Respiration continue", "Contrôle plutôt que vitesse"],
+  err: [
+    ["Bassin qui tourne pendant les touches d’épaule", "Écarter les pieds, ralentir."],
+    ["Fesses hautes", "Une ligne droite des épaules aux chevilles."]
+  ],
+  indic: "Test de référence : planche frontale tenue au maximum (s), toutes les 4 à 6 semaines.",
+  sch: null
+},
+{
+  id: "tunnel", t: "Échange en couloir", axe: "technique", sit: "construire",
+  pub: ["galaxie", "college"], dur: 10, fpm: 12,
+  obj: "Régularité et contrôle de la direction : tenir l’échange dans un couloir.",
+  eff: "Binômes face à face, chacun dans son couloir. 3 binômes sur un terrain (6 enfants).",
+  mat: "Coupelles pour tracer des couloirs de 3 m de large dans la longueur.",
+  place: "A et B face à face, de part et d’autre du filet, dans leur couloir.",
+  steps: [
+    "A met en jeu après rebond (à la main pour les rouges, à la raquette pour les autres).",
+    "Échange coopératif : la balle doit rebondir dans le couloir. On compte à voix haute.",
+    "Une faute = on repart à zéro. On note son record."
+  ],
+  rot: "Mise en jeu alternée. Toutes les 3 min, un binôme sur deux décale d’un couloir (changement de partenaire de même couleur).",
+  score: "Record du binôme sur 3 essais.",
+  defi: "Battre le record de la séance précédente.",
+  reussite: "Rouge 10 frappes, orange 12, vert 15 sans faute.",
+  coul: {
+    rouge: "Terrain rouge en travers du court, balle rouge, couloir de 3 m.",
+    orange: "Terrain orange, balle orange, couloir de 3 m.",
+    vert: "Moitié du court dans la longueur, balle verte, couloir de 3 m."
+  },
+  facile: "Couloir de 4 m, deux rebonds autorisés pour les rouges.",
+  dur2: "Coup droit et revers en alternance obligatoire.",
+  obs: ["Tamis orienté vers la cible à l’impact", "Balle frappée devant le corps", "Replacement entre deux frappes"],
+  err: [
+    ["Balle qui sort du couloir", "Tamis face au partenaire à l’impact, finir vers lui."],
+    ["Frappe trop fort, l’échange s’arrête", "On cherche le record, pas le point : balle haute et lente."]
+  ],
+  indic: "Record du binôme, noté sur la fiche de suivi de chaque enfant.",
+  sch: {
+    tg: [{x:0,y:1.37,w:23.77,h:3,l:"couloir"},{x:0,y:6.6,w:23.77,h:3,l:"couloir"}],
+    pl: [{x:1,y:2.9,l:"A",k:"j"},{x:22.8,y:2.9,l:"B",k:"j"},{x:1,y:8.1,l:"C",k:"j"},{x:22.8,y:8.1,l:"D",k:"j"}],
+    balls: [[1.5,2.6,21.8,2.6,""],[22.3,3.2,2,3.2,""],[1.5,7.8,21.8,7.8,""],[22.3,8.4,2,8.4,""]]
+  }
+},
+{
+  id: "cibles", t: "Coupelles à viser", axe: "technique", sit: "construire",
+  pub: ["galaxie", "college"], dur: 10, fpm: 6,
+  obj: "Orienter le tamis pour choisir la direction, en coup droit et en revers.",
+  eff: "Binômes : un envoyeur E et un frappeur F, de part et d’autre du filet.",
+  mat: "Par binôme : 3 coupelles (gauche, centre, droite) dans la moitié arrière du terrain de E. 10 balles.",
+  place: "E à 1 m du filet, sur le côté de son terrain. F au centre de sa ligne de fond.",
+  steps: [
+    "E envoie une balle facile côté coup droit de F.",
+    "Avant chaque balle, E annonce une couleur ou une position de coupelle (« gauche », « centre », « droite »).",
+    "F vise la coupelle annoncée. 10 balles en coup droit, puis 10 en revers."
+  ],
+  rot: "Après 20 balles, E et F échangent. Ramassage commun.",
+  score: "Balle qui tombe à moins d’1 m de la coupelle annoncée = 1. Coupelle touchée = 3.",
+  defi: "15 points sur 20 balles.",
+  reussite: "5 balles sur 10 du bon côté (gauche/droite) avant de viser plus précis.",
+  coul: {
+    rouge: "Terrain rouge, E envoie à la main par-dessous, à 3 m de F. Coupelles à 1 m de la ligne de fond.",
+    orange: "Terrain orange, E envoie à la main par-dessus ou à la raquette.",
+    vert: "Court entier, E envoie à la raquette depuis la ligne de service."
+  },
+  facile: "2 coupelles seulement (gauche, droite).",
+  dur2: "E annonce la cible au moment où la balle rebondit.",
+  obs: ["Orientation du tamis à l’impact", "Épaules tournées avant la frappe", "Point d’impact plus en avant pour croiser, plus en arrière pour décroiser"],
+  err: [
+    ["Balle toujours au centre", "Tamis tourné vers la cible ; impact plus tôt pour viser l’opposé."],
+    ["Regarde la cible au lieu de la balle", "Je regarde la cible avant, la balle pendant."]
+  ],
+  indic: "Points sur 20 balles, noté sur la fiche de suivi.",
+  sch: {
+    cones: [[18.5,2.5],[19.5,5.485],[18.5,8.5]],
+    pl: [{x:13,y:9.4,l:"E",k:"e"},{x:2,y:5.5,l:"F",k:"j"}],
+    balls: [[12.6,9.2,4,7.2,"1"],[3.6,7,18.3,2.8,"2"]]
+  }
+},
+{
+  id: "servgal", t: "Service en cible", axe: "technique", sit: "servir",
+  pub: ["galaxie", "college"], dur: 8, fpm: 6,
+  obj: "Mettre la balle en jeu au service, puis viser une moitié de carré.",
+  eff: "Tous en même temps : 2 ou 3 serveurs par côté, un carré chacun.",
+  mat: "5 balles par enfant, 2 coupelles par carré pour le couper en deux.",
+  place: "Chaque enfant derrière la ligne de fond de sa couleur, face à un carré de service.",
+  steps: [
+    "Chaque enfant sert ses 5 balles dans le carré en diagonale.",
+    "Tous ramassent ensemble au signal, puis on repart de l’autre côté.",
+    "À partir du 3e tour, viser la moitié du carré annoncée (extérieur ou centre)."
+  ],
+  rot: "4 tours de 5 services, on change de côté (égalité / avantage) à chaque tour.",
+  score: "Service dans le carré = 1. Dans la moitié annoncée = 2.",
+  defi: "4 services sur 5 dans le carré.",
+  reussite: "Rouge 3 sur 5, orange 3 sur 5, vert 3 sur 5 dans le carré.",
+  coul: {
+    rouge: "Terrain rouge, service par-dessous ou par-dessus au choix, balle rouge.",
+    orange: "Terrain orange, service par-dessus, balle orange.",
+    vert: "Court entier, service par-dessus, balle verte."
+  },
+  facile: "Servir depuis la ligne de service.",
+  dur2: "Enchaîner service et premier échange avec un partenaire de même couleur.",
+  obs: ["Lancer devant et au-dessus de l’épaule avant", "Prise marteau (vert)", "Bras qui monte haut à l’impact"],
+  err: [
+    ["Lancer derrière la tête", "Lancer qui retomberait devant le pied avant."],
+    ["Frappe sous la balle, ça part haut", "Frapper la balle en haut, bras tendu."]
+  ],
+  indic: "Services dans le carré sur 20, noté sur la fiche de suivi (axe technique).",
+  sch: {
+    tg: [{x:6.4,y:5.485,w:5.485,h:4.115,l:"carré"}],
+    cones: [[6.6,7.54],[11.6,7.54]],
+    pl: [{x:24.3,y:4.6,l:"S",k:"j"}],
+    balls: [[24,4.7,8.6,7.4,""]]
+  }
+},
+{
+  id: "avantarriere", t: "Avant-arrière", axe: "tactique", sit: "construire",
+  pub: ["galaxie", "college"], dur: 10, fpm: 8,
+  obj: "Déplacer l’adversaire en profondeur : une balle courte, une balle longue.",
+  eff: "Binômes de même couleur, face à face.",
+  mat: "Par côté : 4 coupelles pour la zone courte (près du filet) et 4 bandes plates pour la zone longue (fond).",
+  place: "A et B au centre de leur ligne de fond.",
+  steps: [
+    "Point joué : mise en jeu après rebond au centre.",
+    "Une balle qui tombe dans la zone courte ou la zone longue de l’adversaire rapporte 1 point bonus au frappeur, même si l’échange continue.",
+    "Le point continue jusqu’à la faute."
+  ],
+  rot: "Mise en jeu alternée. Match en 5 min, puis rotation des binômes (montante-descendante).",
+  score: "Point gagné = 1 + bonus de zone. Le plus de points en 5 min.",
+  defi: "Gagner un point en enchaînant courte puis longue.",
+  reussite: "Au moins 1 bonus par échange en moyenne.",
+  coul: {
+    rouge: "Terrain rouge, zone courte = 1,5 m devant le filet, zone longue = dernier mètre.",
+    orange: "Terrain orange, zone courte = devant la ligne de service orange, zone longue = 2 derniers mètres.",
+    vert: "Court entier, zone courte = 3 m devant le filet, zone longue = 3 derniers mètres."
+  },
+  facile: "Coopératif : on alterne volontairement courte puis longue, on compte la série.",
+  dur2: "Le bonus ne compte que si la balle suivante va dans l’autre zone.",
+  obs: ["Balle courte : on ralentit le geste", "Balle longue : on monte la trajectoire", "Le joueur regarde où est l’adversaire"],
+  err: [
+    ["Balle courte qui reste dans le filet", "Ouvrir le tamis et frapper doucement, pas couper sec."],
+    ["Joue toujours au milieu", "Avant de frapper : où est l’autre ? Devant ou derrière ?"]
+  ],
+  indic: "Bonus par match, noté sur la fiche (axe compétition).",
+  sch: {
+    tg: [{x:11.885,y:1.37,w:3,h:8.23,l:"courte"},{x:20.77,y:1.37,w:3,h:8.23,l:"longue"},{x:8.885,y:1.37,w:3,h:8.23,l:"courte"},{x:0,y:1.37,w:3,h:8.23,l:"longue"}],
+    pl: [{x:-0.6,y:5.5,l:"A",k:"j"},{x:24.4,y:5.5,l:"B",k:"j"}],
+    balls: [[-0.2,5.4,13.3,4,"1"],[13.6,4.2,1.6,7.4,"2"],[1.8,7.2,22.2,6,"3"]]
+  }
+},
+{
+  id: "montante", t: "Montante-descendante", axe: "tactique", sit: "match",
+  pub: ["galaxie", "college", "comp", "adultes"], dur: 25, fpm: 6,
+  obj: "Matchs comptés à chaque séance, sans file d’attente : on monte si on gagne, on descend si on perd.",
+  eff: "6 joueurs : 3 matchs simultanés (3 zones). 4 joueurs : 2 zones. 8 joueurs : 4 zones (2 terrains rouges en travers + 2 demi-courts orange).",
+  mat: "Coupelles pour séparer les zones. Chronomètre (téléphone).",
+  place: "Zone 1 = « court central » (le plus haut), zone 3 = le plus bas. Joueurs de même couleur dans la même zone autant que possible.",
+  steps: [
+    "Matchs de 5 min, chrono commun. Mise en jeu alternée, service selon la couleur.",
+    "Au signal, le point en cours est terminé. Le gagnant monte d’une zone, le perdant descend. En zone 1, le gagnant reste ; en dernière zone, le perdant reste.",
+    "Égalité au signal : un point décisif."
+  ],
+  rot: "5 rotations de 5 min.",
+  score: "Chaque enfant note ses victoires. Résultat noté sur la fiche (axe compétition).",
+  defi: "Finir en zone 1.",
+  reussite: "Tous les enfants jouent 25 min de match sans attendre.",
+  coul: {
+    rouge: "Terrain rouge, balle rouge, service par-dessous ou par-dessus.",
+    orange: "Terrain orange, balle orange.",
+    vert: "Demi-court en longueur ou court entier selon l’effectif, balle verte."
+  },
+  facile: "Matchs de 3 min, mise en jeu à la main.",
+  dur2: "Jeux décisifs en 7 points au lieu du chrono.",
+  obs: ["Comptage juste, sans contestation", "Respect de l’adversaire", "Choix tactiques vus dans les ateliers"],
+  err: [
+    ["Les zones mélangent rouges et verts", "Garder une zone par couleur et faire monter-descendre dans la couleur."],
+    ["Contestations sur les balles", "Chacun annonce les balles de son côté, le doute profite à l’adversaire."]
+  ],
+  indic: "Victoires sur 5 matchs, par enfant.",
+  sch: null
+}
+];
+
+/* ---------- État ---------- */
+var KEY = "carnet-tactique-tcb-v1";
+var DEFAULT_SEANCE = {
+  ex: true,
+  pub: "École de tennis (exemple)", coul: ["orange", "vert"], eff: 6, ter: 1, duree: 90,
+  objectif: "Construire le point : profondeur, puis ouverture",
+  items: [{ id: "tunnel", d: 10 }, { id: "profondeur", d: 12 }, { id: "croise", d: 12 }, { id: "avantarriere", d: 10 }, { id: "montante", d: 25 }]
+};
+var S = { tab: "ex", f: { axe: "", sit: "", pub: "", fav: false, q: "" }, open: null, fav: [], notes: {}, seance: JSON.parse(JSON.stringify(DEFAULT_SEANCE)), confirmReset: false };
+
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var d = JSON.parse(raw);
+      if (d.fav) S.fav = d.fav;
+      if (d.notes) S.notes = d.notes;
+      if (d.seance) S.seance = d.seance;
+      if (d.tab) S.tab = d.tab;
+      if (d.f) S.f = Object.assign(S.f, d.f);
+    }
+  } catch (e) {}
+  var h = (location.hash || "").replace("#", "");
+  if (h === "seance") S.tab = "se"; else if (h === "reperes") S.tab = "re";
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify({ fav: S.fav, notes: S.notes, seance: S.seance, tab: S.tab, f: S.f })); } catch (e) {}
+}
+
+/* ---------- Utilitaires ---------- */
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c]; }); }
+function byId(id) { for (var i = 0; i < EX.length; i++) if (EX[i].id === id) return EX[i]; return null; }
+function isFav(id) { return S.fav.indexOf(id) >= 0; }
+function toast(msg) {
+  var t = document.getElementById("toast");
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(function () { t.hidden = true; }, 1800);
+}
+function pubLabel(e) { return e.pub.map(function (p) { return PUB[p]; }).join(" · "); }
+
+/* ---------- Schéma du court ---------- */
+var uid = 0;
+function court(sch) {
+  if (!sch) return "";
+  uid++;
+  var k = 10, L = 23.77, W = 10.97, N = 11.885;
+  function X(v) { return (v * k).toFixed(1); }
+  var vb = [-2.6 * k, -1.4 * k, (L + 5.2) * k, (W + 2.8) * k].join(" ");
+  var o = '<svg class="court" viewBox="' + vb + '" role="img" aria-label="Schéma de l’exercice">';
+  o += '<defs><marker id="ab' + uid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ball)"/></marker>'
+    + '<marker id="am' + uid + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--court-line)"/></marker></defs>';
+  o += '<rect x="' + (-2.6 * k) + '" y="' + (-1.4 * k) + '" width="' + ((L + 5.2) * k) + '" height="' + ((W + 2.8) * k) + '" fill="var(--court-out)"/>';
+  o += '<rect x="0" y="0" width="' + X(L) + '" height="' + X(W) + '" fill="var(--court)"/>';
+  var ln = 'stroke="var(--court-line)" stroke-width="1.4" fill="none"';
+  o += '<rect x="0" y="0" width="' + X(L) + '" height="' + X(W) + '" ' + ln + '/>';
+  o += '<line x1="0" y1="' + X(1.37) + '" x2="' + X(L) + '" y2="' + X(1.37) + '" ' + ln + '/>';
+  o += '<line x1="0" y1="' + X(W - 1.37) + '" x2="' + X(L) + '" y2="' + X(W - 1.37) + '" ' + ln + '/>';
+  o += '<line x1="' + X(N - 5.485) + '" y1="' + X(1.37) + '" x2="' + X(N - 5.485) + '" y2="' + X(W - 1.37) + '" ' + ln + '/>';
+  o += '<line x1="' + X(N + 5.485) + '" y1="' + X(1.37) + '" x2="' + X(N + 5.485) + '" y2="' + X(W - 1.37) + '" ' + ln + '/>';
+  o += '<line x1="' + X(N - 5.485) + '" y1="' + X(W / 2) + '" x2="' + X(N + 5.485) + '" y2="' + X(W / 2) + '" ' + ln + '/>';
+  o += '<line x1="0" y1="' + X(W / 2) + '" x2="3" y2="' + X(W / 2) + '" ' + ln + '/>';
+  o += '<line x1="' + X(L) + '" y1="' + X(W / 2) + '" x2="' + (L * k - 3) + '" y2="' + X(W / 2) + '" ' + ln + '/>';
+  o += '<line x1="' + X(N) + '" y1="' + X(-0.9) + '" x2="' + X(N) + '" y2="' + X(W + 0.9) + '" stroke="var(--court-line)" stroke-width="2.6" stroke-dasharray="1.5 2"/>';
+  (sch.tg || []).forEach(function (t) {
+    o += '<rect x="' + X(t.x) + '" y="' + X(t.y) + '" width="' + X(t.w) + '" height="' + X(t.h) + '" fill="var(--ball)" fill-opacity=".22" stroke="var(--ball)" stroke-width="1.2" stroke-dasharray="4 3"/>';
+    if (t.l) o += '<text x="' + X(t.x + t.w / 2) + '" y="' + X(t.y + t.h - 0.35) + '" text-anchor="middle" font-size="9" font-family="Barlow, sans-serif" font-weight="600" fill="var(--court-line)">' + esc(t.l) + '</text>';
+  });
+  (sch.cones || []).forEach(function (c) {
+    o += '<path d="M' + X(c[0]) + ' ' + X(c[1] - 0.45) + ' l4.5 8 h-9 z" fill="#EE8A1E" stroke="var(--court-line)" stroke-width=".6" transform="translate(0,-1)"/>';
+  });
+  (sch.mv || []).forEach(function (m) {
+    o += '<line x1="' + X(m[0]) + '" y1="' + X(m[1]) + '" x2="' + X(m[2]) + '" y2="' + X(m[3]) + '" stroke="var(--court-line)" stroke-width="1.6" marker-end="url(#am' + uid + ')" opacity=".9"/>';
+  });
+  (sch.balls || []).forEach(function (b) {
+    o += '<line x1="' + X(b[0]) + '" y1="' + X(b[1]) + '" x2="' + X(b[2]) + '" y2="' + X(b[3]) + '" stroke="var(--ball)" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#ab' + uid + ')"/>';
+    if (b[4]) {
+      var mx = b[0] + (b[2] - b[0]) * 0.45, my = b[1] + (b[3] - b[1]) * 0.45;
+      o += '<circle cx="' + X(mx) + '" cy="' + X(my) + '" r="6.5" fill="var(--ball)"/><text x="' + X(mx) + '" y="' + (my * k + 3.2).toFixed(1) + '" text-anchor="middle" font-size="9" font-weight="700" font-family="Barlow, sans-serif" fill="var(--ball-ink)">' + esc(b[4]) + '</text>';
+    }
+  });
+  (sch.pl || []).forEach(function (p) {
+    var fill = p.k === "j" ? "var(--ball)" : (p.k === "c" ? "#D9412E" : "var(--court-line)");
+    var ink = p.k === "c" ? "#FFFFFF" : "var(--ball-ink)";
+    o += '<circle cx="' + X(p.x) + '" cy="' + X(p.y) + '" r="9" fill="' + fill + '" stroke="var(--ball-ink)" stroke-width="1"/><text x="' + X(p.x) + '" y="' + (p.y * k + 3.6).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" font-family="Barlow, sans-serif" fill="' + ink + '">' + esc(p.l) + '</text>';
+  });
+  o += '</svg>';
+  o += '<div class="legend"><span><i class="sw" style="background:var(--ball)"></i>joueur</span><span><i class="sw" style="background:var(--court-line)"></i>envoyeur</span><span>- - → balle (n° = ordre)</span><span>—→ déplacement</span>' + ((sch.cones && sch.cones.length) ? '<span><i class="sw" style="background:#EE8A1E;border-radius:2px"></i>coupelle</span>' : '') + '</div>';
+  return o;
+}
+
+/* ---------- Vues ---------- */
+function filtered() {
+  var f = S.f, q = f.q.trim().toLowerCase();
+  return EX.filter(function (e) {
+    if (f.axe && e.axe !== f.axe) return false;
+    if (f.sit && e.sit !== f.sit) return false;
+    if (f.pub && e.pub.indexOf(f.pub) < 0) return false;
+    if (f.fav && !isFav(e.id)) return false;
+    if (q) {
+      var hay = (e.t + " " + e.obj + " " + e.steps.join(" ") + " " + (S.notes[e.id] || "")).toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+}
+function chipRow(key, map, allLabel) {
+  var o = '<div class="chips" role="group">';
+  o += '<button class="chip" data-f="' + key + '" data-v="" aria-pressed="' + (!S.f[key]) + '">' + allLabel + '</button>';
+  Object.keys(map).forEach(function (k) {
+    o += '<button class="chip" data-f="' + key + '" data-v="' + k + '" aria-pressed="' + (S.f[key] === k) + '">' + map[k] + '</button>';
+  });
+  return o + '</div>';
+}
+function viewList() {
+  var list = filtered();
+  var o = '<div class="top"><div><h1>Carnet tactique</h1><small>TC Bandol · banque d’exercices</small></div><div class="count">' + list.length + ' / ' + EX.length + '</div></div>';
+  o += '<div class="filters"><input class="search" id="q" type="search" placeholder="Chercher : volée, profondeur, Maxime…" value="' + esc(S.f.q) + '" aria-label="Chercher un exercice">';
+  o += chipRow("axe", { tactique: "Tactique", technique: "Technique", physique: "Physique" }, "Tous les axes");
+  o += chipRow("sit", SIT, "Toutes situations");
+  o += '<div class="chips" role="group"><button class="chip" data-f="pub" data-v="" aria-pressed="' + (!S.f.pub) + '">Tous publics</button>';
+  Object.keys(PUB).forEach(function (k) { o += '<button class="chip" data-f="pub" data-v="' + k + '" aria-pressed="' + (S.f.pub === k) + '">' + PUB[k] + '</button>'; });
+  o += '<button class="chip" data-f="fav" data-v="1" aria-pressed="' + S.f.fav + '">★ Favoris</button></div></div>';
+  if (!list.length) {
+    o += '<div class="empty">Aucun exercice pour ces filtres.<br><button class="btn ghost" data-act="clear" style="margin-top:10px">Effacer les filtres</button></div>';
+  } else {
+    o += '<div class="list">';
+    list.forEach(function (e) {
+      var fr = e.fpm ? (e.fpm * e.dur) + ' frappes' : 'sans balle';
+      o += '<div class="card" role="button" tabindex="0" data-open="' + e.id + '">'
+        + '<div class="t">' + esc(e.t) + '</div>'
+        + '<button class="star" data-star="' + e.id + '" aria-pressed="' + isFav(e.id) + '" aria-label="Favori">' + (isFav(e.id) ? '★' : '☆') + '</button>'
+        + '<p class="o">' + esc(e.obj) + '</p>'
+        + '<div class="meta"><span class="pill ' + e.axe + '">' + e.axe + '</span><span>' + SIT[e.sit] + '</span><span>· ' + e.dur + ' min</span><span>· ' + fr + '</span><span>· ' + pubLabel(e) + '</span>' + (S.notes[e.id] ? '<span>· ✎ note</span>' : '') + '</div>'
+        + '</div>';
+    });
+    o += '</div>';
+  }
+  return o;
+}
+function kv(label, val) { return '<div class="kv"><dt>' + label + '</dt><dd>' + val + '</dd></div>'; }
+function viewDetail(e) {
+  var inSeance = S.seance.items.some(function (i) { return i.id === e.id; });
+  var o = '<button class="back" data-act="back">‹ Exercices</button><article class="detail">';
+  o += '<header><div class="meta"><span class="pill ' + e.axe + '">' + e.axe + '</span><span>' + SIT[e.sit] + '</span><span>· ' + pubLabel(e) + '</span></div><h2>' + esc(e.t) + '</h2><p>' + esc(e.obj) + '</p></header>';
+  o += '<div class="facts"><div class="fact"><b>' + e.dur + ' min</b><span>durée</span></div><div class="fact"><b>' + (e.fpm ? '≈ ' + (e.fpm * e.dur) : '—') + '</b><span>frappes / joueur</span></div><div class="fact"><b>' + (e.fpm || '—') + '</b><span>frappes / min</span></div></div>';
+  if (e.sch) o += '<div>' + court(e.sch) + '</div>';
+  o += '<section class="sec box"><h3>Mise en place</h3><dl style="margin:0;display:grid;gap:8px">' + kv("Effectif", esc(e.eff)) + kv("Matériel", esc(e.mat)) + kv("Placement", esc(e.place)) + '</dl></section>';
+  o += '<section class="sec"><h3>Déroulement</h3><ol>' + e.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ol></section>';
+  o += '<section class="sec box"><dl style="margin:0;display:grid;gap:8px">' + kv("Rotation", esc(e.rot)) + kv("Comptage", esc(e.score)) + kv("Défi", esc(e.defi)) + kv("Critère de réussite", esc(e.reussite)) + '</dl></section>';
+  if (e.coul) {
+    o += '<section class="sec"><h3>Consignes par couleur</h3><div class="colors">';
+    Object.keys(COUL).forEach(function (c) { if (e.coul[c]) o += '<div class="col"><span class="dot"><i class="c-' + c + '"></i>' + COUL[c] + '</span><span>' + esc(e.coul[c]) + '</span></div>'; });
+    o += '</div></section>';
+  }
+  o += '<section class="sec"><h3>Faire varier</h3><dl style="margin:0;display:grid;gap:8px">' + kv("Plus facile", esc(e.facile)) + kv("Plus dur", esc(e.dur2)) + '</dl></section>';
+  o += '<section class="sec"><h3>Ce que j’observe</h3><ul>' + e.obs.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ul></section>';
+  o += '<section class="sec"><h3>Erreur → correction</h3><div class="fix">' + e.err.map(function (r) { return '<div><span>' + esc(r[0]) + '</span><em>→ ' + esc(r[1]) + '</em></div>'; }).join("") + '</div></section>';
+  o += '<section class="indic"><h3>Indicateur</h3><p>' + esc(e.indic) + '</p></section>';
+  o += '<section class="sec"><h3><label for="note">Mes notes</label></h3><textarea id="note" data-note="' + e.id + '" placeholder="Ce qui a marché, adaptations, résultats des enfants…">' + esc(S.notes[e.id] || "") + '</textarea></section>';
+  o += '<div class="actions"><button class="btn" data-add="' + e.id + '">' + (inSeance ? '＋ Ajouter encore à la séance' : '＋ Ajouter à la séance') + '</button><button class="btn ghost" data-star="' + e.id + '" aria-pressed="' + isFav(e.id) + '">' + (isFav(e.id) ? '★ En favori' : '☆ Favori') + '</button></div>';
+  o += '</article>';
+  return o;
+}
+
+/* Séance */
+function couleursSel() { return S.seance.coul || []; }
+function consignes(e) {
+  var cs = couleursSel();
+  if (!e.coul || !cs.length) return esc(e.coul ? "Voir l’exercice" : "Même consigne pour tous");
+  return cs.map(function (c) { return '<b>' + COUL[c] + '</b> : ' + esc(e.coul[c] || "comme vert"); }).join("<br>");
+}
+function totals() {
+  var dur = 0, fr = 0;
+  S.seance.items.forEach(function (it) { var e = byId(it.id); if (!e) return; dur += it.d; fr += e.fpm * it.d; });
+  return { dur: dur, fr: fr, parH: dur ? Math.round(fr * 60 / dur) : 0 };
+}
+function viewSeance() {
+  var se = S.seance, t = totals();
+  var o = '<div class="top"><div><h1>Ma séance</h1><small>Fiche au format fixe, prête à copier</small></div></div>';
+  if (se.ex) o += '<p class="note" style="margin-bottom:12px">Séance d’exemple (6 enfants, orange et vert, 1 terrain, 1h30). Modifie-la ou vide-la pour partir de zéro.</p>';
+  o += '<div class="form">'
+    + '<div class="field full"><label for="s-pub">Public</label><input id="s-pub" data-s="pub" value="' + esc(se.pub) + '"></div>'
+    + '<fieldset class="fieldset full"><legend>Couleurs présentes</legend>'
+    + Object.keys(COUL).map(function (c) { return '<label class="tog"><input type="checkbox" id="s-c-' + c + '" data-coul="' + c + '"' + (se.coul.indexOf(c) >= 0 ? " checked" : "") + '><i class="sw c-' + c + '" style="width:10px;height:10px"></i>' + COUL[c] + '</label>'; }).join("")
+    + '</fieldset>'
+    + '<div class="field"><label for="s-eff">Effectif</label><input id="s-eff" type="number" inputmode="numeric" min="1" data-s="eff" value="' + se.eff + '"></div>'
+    + '<div class="field"><label for="s-ter">Terrains</label><input id="s-ter" type="number" inputmode="numeric" min="1" data-s="ter" value="' + se.ter + '"></div>'
+    + '<div class="field"><label for="s-duree">Durée (min)</label><input id="s-duree" type="number" inputmode="numeric" min="10" step="5" data-s="duree" value="' + se.duree + '"></div>'
+    + '<div class="field full"><label for="s-obj">Objectif</label><input id="s-obj" data-s="objectif" value="' + esc(se.objectif) + '"></div>'
+    + '</div>';
+  var reste = se.duree - t.dur;
+  var okF = t.parH >= 300;
+  o += '<div class="sum" style="margin-top:14px"><div class="fact"><b>' + t.dur + ' / ' + se.duree + '</b><span>minutes</span><div><span class="state ' + (reste >= 0 ? 'ok' : 'ko') + '">' + (reste >= 0 ? reste + ' min libres' : (-reste) + ' min de trop') + '</span></div></div>'
+    + '<div class="fact"><b>≈ ' + t.fr + '</b><span>frappes / enfant</span></div>'
+    + '<div class="fact"><b>' + t.parH + '</b><span>frappes / heure</span><div><span class="state ' + (okF ? 'ok' : 'ko') + '">' + (okF ? 'repère 300-400 ✓' : 'sous 300') + '</span></div></div></div>';
+  o += '<h3 style="margin:18px 0 8px">Ateliers</h3>';
+  if (!se.items.length) {
+    o += '<div class="empty">Aucun atelier. Ouvre un exercice et touche « Ajouter à la séance ».<br><button class="btn ghost" data-tabgo="ex" style="margin-top:10px">Voir les exercices</button></div>';
+  } else {
+    o += '<div class="items">';
+    se.items.forEach(function (it, i) {
+      var e = byId(it.id); if (!e) return;
+      o += '<div class="item"><div class="n">' + esc(e.t) + '<small>' + SIT[e.sit] + ' · ' + (e.fpm ? '≈ ' + e.fpm * it.d + ' frappes' : 'sans balle') + '</small></div>'
+        + '<div class="ctl"><input type="number" inputmode="numeric" min="1" id="d-' + i + '" data-dur="' + i + '" value="' + it.d + '" aria-label="Durée en minutes"><button class="ib" data-mv="' + i + '" data-dir="-1" aria-label="Monter">↑</button><button class="ib" data-mv="' + i + '" data-dir="1" aria-label="Descendre">↓</button><button class="ib" data-rm="' + i + '" aria-label="Retirer">✕</button></div></div>';
+    });
+    o += '</div>';
+  }
+  if (se.items.length) {
+    o += '<h3 style="margin:18px 0 8px">Fiche séance</h3><div class="tablewrap"><table><thead><tr><th>Atelier</th><th>Durée</th><th>Matériel</th><th>Consigne par couleur</th><th>Défi</th><th>Critère de réussite</th><th>Frappes</th></tr></thead><tbody>';
+    se.items.forEach(function (it) {
+      var e = byId(it.id); if (!e) return;
+      o += '<tr><td><b>' + esc(e.t) + '</b><small>' + esc(e.obj) + '</small></td><td class="num">' + it.d + ' min</td><td>' + esc(e.mat) + '</td><td>' + consignes(e) + '</td><td>' + esc(e.defi) + '</td><td>' + esc(e.reussite) + '</td><td class="num">' + (e.fpm ? '≈ ' + e.fpm * it.d : '—') + '</td></tr>';
+    });
+    o += '<tr><td colspan="6"><b>Total par enfant</b></td><td class="num"><b>≈ ' + t.fr + '</b></td></tr></tbody></table></div>';
+  }
+  o += '<div class="actions" style="margin-top:14px"><button class="btn" data-act="copy">Copier la fiche</button>';
+  if (S.confirmReset) o += '<span class="confirm">Vider la séance ? <button class="btn danger" data-act="reset-yes">Oui, vider</button><button class="btn ghost" data-act="reset-no">Annuler</button></span>';
+  else o += '<button class="btn ghost" data-act="reset">Vider</button><button class="btn ghost" data-act="sample">Recharger l’exemple</button>';
+  o += '</div><textarea id="copyzone" readonly hidden style="margin-top:10px;min-height:200px"></textarea>';
+  return o;
+}
+function seanceText() {
+  var se = S.seance, t = totals();
+  var L = [];
+  L.push("FICHE SÉANCE");
+  L.push("Public : " + se.pub);
+  L.push("Couleurs : " + (se.coul.length ? se.coul.map(function (c) { return COUL[c]; }).join(", ") : "—") + " · Effectif : " + se.eff + " · Terrains : " + se.ter + " · Durée : " + se.duree + " min");
+  L.push("Objectif : " + se.objectif);
+  L.push("");
+  se.items.forEach(function (it, i) {
+    var e = byId(it.id); if (!e) return;
+    L.push((i + 1) + ". " + e.t + " — " + it.d + " min" + (e.fpm ? " — ≈ " + e.fpm * it.d + " frappes" : ""));
+    L.push("   Matériel : " + e.mat);
+    L.push("   Placement : " + e.place);
+    e.steps.forEach(function (s) { L.push("   - " + s); });
+    if (e.coul && se.coul.length) se.coul.forEach(function (c) { if (e.coul[c]) L.push("   " + COUL[c] + " : " + e.coul[c]); });
+    L.push("   Rotation : " + e.rot);
+    L.push("   Comptage : " + e.score);
+    L.push("   Défi : " + e.defi);
+    L.push("   Réussite : " + e.reussite);
+    L.push("");
+  });
+  L.push("Total : " + t.dur + " min · ≈ " + t.fr + " frappes par enfant (" + t.parH + " / heure)");
+  return L.join("\n");
+}
+
+/* Repères */
+function viewRefs() {
+  var o = '<div class="top"><div><h1>Repères</h1><small>Ce qu’on rappelle aux joueurs, et les chiffres du court</small></div></div><div class="refs">';
+  o += '<section class="box"><h3>Situations de jeu et intention</h3><div class="sit">'
+    + '<div><b>Servir</b><span>Prendre l’initiative : placement avant vitesse, puis « + 1 » en coup droit dans le côté ouvert.</span></div>'
+    + '<div><b>Retourner</b><span>Neutraliser : retour profond au centre sur 1re balle, retour d’attaque sur 2e balle faible.</span></div>'
+    + '<div><b>Construire</b><span>Profondeur et diagonale, patience. Changer de direction seulement sur une balle confortable, frappée dans le court.</span></div>'
+    + '<div><b>Attaquer</b><span>Balle courte = j’avance. Approche long de ligne, je suis ma balle, arrêt en appuis quand l’adversaire frappe.</span></div>'
+    + '<div><b>Défendre</b><span>Gagner du temps : haut, profond, au centre. Replacement au centre des angles possibles.</span></div>'
+    + '<div><b>Filet</b><span>Volée bloquée, tamis devant. Première volée profonde, la suivante pour finir (courte croisée ou dans l’ouverture).</span></div>'
+    + '</div></section>';
+  o += '<section class="box"><h3>Lire sa zone</h3><p><b>Derrière la ligne de fond (+1 m) :</b> défense, balle haute et croisée.</p><p><b>Autour de la ligne de fond :</b> construction, profond et croisé.</p><p><b>Dans le court :</b> attaque, long de ligne ou ouverture, puis j’avance.</p></section>';
+  o += '<section><h3 style="margin-bottom:8px">Les chiffres du court</h3><div class="nums">'
+    + '<div class="fact"><b>0,914 m</b><span>filet au centre</span></div>'
+    + '<div class="fact"><b>1,07 m</b><span>filet aux poteaux</span></div>'
+    + '<div class="fact"><b>≈ 25,1 m</b><span>diagonale du simple</span></div>'
+    + '<div class="fact"><b>23,77 m</b><span>long de ligne</span></div>'
+    + '</div><p style="margin-top:8px;color:var(--muted);font-size:14px">Le croisé passe au-dessus du filet le plus bas et offre ≈ 1,4 m de court en plus : c’est le coup de sécurité. Le long de ligne passe là où le filet est le plus haut, sur la distance la plus courte : c’est un coup d’attaque.</p></section>';
+  o += '<section class="box"><h3>Marges</h3><p>Viser 1 m au-dessus du filet et 1 m à l’intérieur des lignes. En difficulté : plus haut, pas plus fort.</p></section>';
+  o += '<section class="box"><h3>Cadre Galaxie (école de tennis)</h3><p>300 à 400 frappes par enfant et par heure.</p><p>Ateliers de 7 min minimum (démo + défi), 4 à 5 par séance.</p><p>Un match ou un tournoi à chaque séance.</p><p>Évaluation sur 3 axes : compétition, technique (critères de passage par couleur), pratique.</p><p>Groupes mélangés : 3 couleurs au plus sur un court, binômes fixes par zone, une consigne commune déclinée par couleur.</p></section>';
+  o += '</div>';
+  return o;
+}
+
+/* ---------- Rendu et événements ---------- */
+var app = document.getElementById("app");
+function render() {
+  var html;
+  if (S.tab === "ex") html = S.open ? viewDetail(byId(S.open)) : viewList();
+  else if (S.tab === "se") html = viewSeance();
+  else html = viewRefs();
+  app.innerHTML = html;
+  document.querySelectorAll("#tabs button").forEach(function (b) { b.setAttribute("aria-selected", b.dataset.tab === S.tab); });
+  var n = S.seance.items.length;
+  document.getElementById("tab-se").innerHTML = 'Séance' + (n ? '<span class="badge">' + n + '</span>' : '');
+}
+function go(tab) { S.tab = tab; S.open = null; S.confirmReset = false; save(); render(); window.scrollTo(0, 0); }
+
+document.getElementById("tabs").addEventListener("click", function (ev) {
+  var b = ev.target.closest("button[data-tab]"); if (b) go(b.dataset.tab);
+});
+app.addEventListener("click", function (ev) {
+  var t = ev.target;
+  var star = t.closest("[data-star]");
+  if (star) {
+    ev.stopPropagation();
+    var id = star.dataset.star, i = S.fav.indexOf(id);
+    if (i >= 0) S.fav.splice(i, 1); else S.fav.push(id);
+    save(); render(); return;
+  }
+  var chip = t.closest("[data-f]");
+  if (chip) {
+    var k = chip.dataset.f;
+    if (k === "fav") S.f.fav = !S.f.fav; else S.f[k] = chip.dataset.v;
+    save(); render(); return;
+  }
+  var open = t.closest("[data-open]");
+  if (open) { S.open = open.dataset.open; render(); window.scrollTo(0, 0); return; }
+  var add = t.closest("[data-add]");
+  if (add) {
+    var e = byId(add.dataset.add);
+    S.seance.items.push({ id: e.id, d: e.dur }); S.seance.ex = false;
+    save(); render(); toast("Ajouté à la séance"); return;
+  }
+  var mv = t.closest("[data-mv]");
+  if (mv) {
+    var a = +mv.dataset.mv, b = a + (+mv.dataset.dir), it = S.seance.items;
+    if (b >= 0 && b < it.length) { var tmp = it[a]; it[a] = it[b]; it[b] = tmp; S.seance.ex = false; save(); render(); }
+    return;
+  }
+  var rm = t.closest("[data-rm]");
+  if (rm) { S.seance.items.splice(+rm.dataset.rm, 1); S.seance.ex = false; save(); render(); return; }
+  var tg = t.closest("[data-tabgo]");
+  if (tg) { go(tg.dataset.tabgo); return; }
+  var act = t.closest("[data-act]");
+  if (!act) return;
+  var A = act.dataset.act;
+  if (A === "back") { S.open = null; render(); return; }
+  if (A === "clear") { S.f = { axe: "", sit: "", pub: "", fav: false, q: "" }; save(); render(); return; }
+  if (A === "reset") { S.confirmReset = true; render(); return; }
+  if (A === "reset-no") { S.confirmReset = false; render(); return; }
+  if (A === "reset-yes") { S.seance = { ex: false, pub: "", coul: [], eff: 6, ter: 1, duree: 90, objectif: "", items: [] }; S.confirmReset = false; save(); render(); toast("Séance vidée"); return; }
+  if (A === "sample") { S.seance = JSON.parse(JSON.stringify(DEFAULT_SEANCE)); save(); render(); toast("Exemple rechargé"); return; }
+  if (A === "copy") {
+    var txt = seanceText();
+    var fallback = function () { var z = document.getElementById("copyzone"); z.hidden = false; z.value = txt; z.focus(); z.select(); toast("Sélectionné : copie avec le menu"); };
+    try {
+      navigator.clipboard.writeText(txt).then(function () { toast("Fiche copiée"); }, fallback);
+    } catch (e2) { fallback(); }
+  }
+});
+app.addEventListener("keydown", function (ev) {
+  if ((ev.key === "Enter" || ev.key === " ") && ev.target.matches("[data-open]")) { ev.preventDefault(); ev.target.click(); }
+});
+app.addEventListener("input", function (ev) {
+  var t = ev.target;
+  if (t.id === "q") {
+    S.f.q = t.value; save();
+    var pos = t.selectionStart; render();
+    var q = document.getElementById("q"); q.focus(); try { q.setSelectionRange(pos, pos); } catch (e) {}
+    return;
+  }
+  if (t.dataset.note) { if (t.value.trim()) S.notes[t.dataset.note] = t.value; else delete S.notes[t.dataset.note]; save(); return; }
+  if (t.dataset.s) {
+    var k = t.dataset.s;
+    S.seance[k] = t.type === "number" ? (parseInt(t.value, 10) || 0) : t.value;
+    S.seance.ex = false; save();
+    return;
+  }
+});
+app.addEventListener("change", function (ev) {
+  var t = ev.target;
+  if (t.dataset.coul) {
+    var c = t.dataset.coul, arr = S.seance.coul, i = arr.indexOf(c);
+    if (t.checked && i < 0) arr.push(c); if (!t.checked && i >= 0) arr.splice(i, 1);
+    arr.sort(function (a, b) { return Object.keys(COUL).indexOf(a) - Object.keys(COUL).indexOf(b); });
+    S.seance.ex = false; save(); render(); return;
+  }
+  if (t.dataset.dur != null && t.dataset.dur !== undefined && t.matches("[data-dur]")) {
+    S.seance.items[+t.dataset.dur].d = Math.max(1, parseInt(t.value, 10) || 1); S.seance.ex = false; save(); render(); return;
+  }
+  if (t.dataset.s && t.type === "number") { render(); }
+});
+
+load();
+render();
+</script>
